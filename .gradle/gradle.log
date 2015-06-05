@@ -5,8 +5,11 @@
  R4wk, ZeuX, IngisKahn, bspkrs
  MCP Data version : snapshot_20141130
 ****************************
-:genIntellijRuns
+:ideaModule
+:ideaProject
+:ideaWorkspace
+:idea
 
 BUILD SUCCESSFUL
 
-Total time: 7.769 secs
+Total time: 51.421 secs
