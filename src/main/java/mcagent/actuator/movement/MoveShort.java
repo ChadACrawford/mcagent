@@ -20,9 +20,17 @@ public class MoveShort extends Move {
     LinkedList<BlockPos> path;
 
     BlockPos to = null;
+    BlockPos from = null;
 
     public MoveShort(double toX, double toY, double toZ) {
         super(toX, toY, toZ);
+        EntityPlayerSP player = PlayerController.getInstance().getPlayer();
+        BlockPos from = new BlockPos(player.getPosition());
+    }
+
+    public MoveShort(BlockPos from, BlockPos to) {
+        super(to.getX(), to.getY(), to.getZ());
+        this.from = new BlockPos(from);
     }
 
     @Override
@@ -91,8 +99,6 @@ public class MoveShort extends Move {
         PlayerController pc = PlayerController.getInstance();
         EntityPlayerSP player = pc.getPlayer();
         World w = pc.getWorld();
-
-        BlockPos from = new BlockPos(player.getPosition());
         class Tuple implements Comparable<Tuple> {
             LinkedList<BlockPos> path;
             double f,h;
@@ -164,6 +170,10 @@ public class MoveShort extends Move {
                 }
             }
         }
+    }
+
+    public static boolean pathExists(BlockPos from, BlockPos to) {
+        return new MoveShort(from, to).calculate();
     }
 
     @Override

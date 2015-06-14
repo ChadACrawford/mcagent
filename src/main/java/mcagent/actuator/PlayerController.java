@@ -39,6 +39,7 @@ public class PlayerController implements Controller {
         return instance;
     }
 
+    private static final boolean OVERRIDE_KEYS = false;
     private void setKeyBindings() {
         Minecraft mc = Minecraft.getMinecraft();
         KeyBinding kbf = mc.gameSettings.keyBindForward;
@@ -55,12 +56,14 @@ public class PlayerController implements Controller {
         keyJump = new OverrideKeyBinding(kbj.getKeyDescription(), kbj.getKeyCode(), kbj.getKeyCategory());
         keyAttack = new OverrideKeyBinding(kba.getKeyDescription(), kba.getKeyCode(), kba.getKeyCategory());
 
-        mc.gameSettings.keyBindForward = keyUp;
-        mc.gameSettings.keyBindBack = keyDown;
-        mc.gameSettings.keyBindLeft = keyLeft;
-        mc.gameSettings.keyBindRight = keyRight;
-        mc.gameSettings.keyBindJump = keyJump;
-        mc.gameSettings.keyBindAttack = keyAttack;
+        if(OVERRIDE_KEYS) {
+            mc.gameSettings.keyBindForward = keyUp;
+            mc.gameSettings.keyBindBack = keyDown;
+            mc.gameSettings.keyBindLeft = keyLeft;
+            mc.gameSettings.keyBindRight = keyRight;
+            mc.gameSettings.keyBindJump = keyJump;
+            mc.gameSettings.keyBindAttack = keyAttack;
+        }
     }
 
     public void act() {

@@ -34,7 +34,7 @@ public class AutoPlayer {
     Path p;
     //@SubscribeEvent
     public void onPlayerUpdate(TickEvent.PlayerTickEvent e) {
-        //initialization
+/*        //initialization
         if(pc == null) pc = new PlayerController(Minecraft.getMinecraft(), Minecraft.getMinecraft().thePlayer);
         if(pc.p.getPosition() == null) return;
         if(pc.delay()) return;

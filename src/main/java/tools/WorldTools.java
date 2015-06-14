@@ -1,8 +1,12 @@
 package tools;
 
+import net.minecraft.block.Block;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import scala.actors.threadpool.Arrays;
+
+import java.util.HashSet;
 
 /**
  * Created by Chad on 3/30/2015.
@@ -12,15 +16,11 @@ public class WorldTools {
     public static double PLAYER_WIDTH = 0.5;
 
     public static BlockPos findGroundBlock(World w, BlockPos p) {
-        BlockPos r = new BlockPos(p);
-        while(r.getY()>0 && w.isAirBlock(r)) {
-            r = r.add(0, -1, 0);
-            //System.out.println(r);
+        for(int i = 0; p.getY()+i>=0; i--) {
+            BlockPos r = p.add(0,i,0);
+            if(isSolid(w, r)) return r;
         }
-        if(!w.isAirBlock(r))
-            return r;
-        else
-            return null;
+        return null;
     }
 
     public static double distance(Vec3 v1, Vec3 v2) {
@@ -28,10 +28,37 @@ public class WorldTools {
     }
 
     public static boolean open(World w, BlockPos p, int d) {
-        for(int i = 1; i <= d; i++) {
+        for(int i = 1; i <= d && p.getY()+i<w.getHeight(); i++) {
             if(!w.isAirBlock(p.add(0,i,0))) return false;
         }
         return true;
+    }
+
+    /**
+     * Finds the first surface block (block with an air block above it) directly above p, assuming p is solid
+     * @param w The world
+     * @param p The block to begin searching at
+     * @return The nearest surface block directly above p
+     */
+    public static BlockPos findAboveSurfaceBlock(World w, BlockPos p) {
+        for(int i = 1; p.getY()+i <= w.getHeight(); i++) {
+            if(!isSolid(w,p.add(0,i,0))) return p.add(0,i-1,0);
+        }
+        return null;
+    }
+
+    /**
+     * Finds the first surface block (block with an air block above it) directly below p, assuming p is an air block
+     * @param w The world
+     * @param p The block to begin searching at
+     * @return The first surface block directly below p
+     */
+    public static BlockPos findBelowSurfaceBlock(World w, BlockPos p) {
+        for(int i = -1; p.getY()+i>=0; i--) {
+            BlockPos n = p.add(0,i,0);
+            if(isSolid(w,n)) return n;
+        }
+        return null;
     }
 
     public static BlockPos getAccessibleBlock(World w, BlockPos from, double toX, double toZ) {
@@ -50,17 +77,21 @@ public class WorldTools {
         return null;
     }
 
+    static final HashSet<Integer> nonSolidBlockIds = new HashSet<Integer>(Arrays.asList(new Integer[] {
+            0,6,27,28,31,32,37,38,39,40,50,51,55,59,63,65,66,68,69,70,72,75,76,77,83,104,105,106,140,141,142,143,144,147,148,149,150,157,175,176,177,
+    }));
     public static boolean isSolid(World w, BlockPos p) {
-        if(!w.isAirBlock(p)) return true;
+        int id = Block.getIdFromBlock(w.getBlockState(p).getBlock());
+        if(!nonSolidBlockIds.contains(id)) return true;
         return false;
     }
 
     /**
      * Checks square region around a point to see if it is open
-     * @param x
-     * @param y
-     * @param z
-     * @param r
+     * @param x x-coordinate
+     * @param y y-coordinate
+     * @param z z-coordinate
+     * @param r square radius
      * @return
      */
     private static boolean openSpace(World w, double x, double y, double z, double r) {
