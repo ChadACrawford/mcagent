@@ -1,13 +1,10 @@
 package mcagent.actuator;
 
 import mcagent.ControllerStatus;
-import mcagent.actuator.movement.Move;
-import mcagent.actuator.movement.MoveLong;
-import mcagent.actuator.movement.MoveShort;
-import mcagent.actuator.movement.MoveVeryLong;
+import mcagent.actuator.movement.*;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.Vec3;
-import tools.WorldTools;
+import mcagent.util.WorldTools;
 
 /**
  * Created by Chad on 5/24/2015.
@@ -24,17 +21,19 @@ public class ActionMove extends PlayerControllerAction {
 
         EntityPlayerSP player = PlayerController.getInstance().getPlayer();
         double dist = WorldTools.distance(player.getPositionVector(), new Vec3(moveX, moveY, moveZ));
-        if(dist <= 10)
+        if(dist <= WorldGrid.MAX_DISTANCE)
             this.move = new MoveShort(moveX, moveY, moveZ);
-        else if(dist <= 100)
+        else if(WorldGrid.getInstance().inRange((int)moveX, (int)moveZ))
             this.move = new MoveLong(moveX, moveY, moveZ);
         else
             this.move = new MoveVeryLong(moveX, moveY, moveZ);
 
         if(move.calculate())
             this.status = ControllerStatus.BUSY;
-        else
+        else {
+            //System.out.println("Failed to find path to goal");
             this.status = ControllerStatus.FAILURE;
+        }
     }
 
     @Override

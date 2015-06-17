@@ -1,4 +1,4 @@
-package tools;
+package mcagent.util;
 /*
 ** KDTree.java by Julian Kent
 **
@@ -220,7 +220,7 @@ public abstract class KDTree<T>{
                 }
                 distance += sqr(diff);
             }
-            return distance;
+            return Math.sqrt(distance);
         }
         double pointDist(double[] arr, double[] location, int index){
             double distance = 0;
@@ -229,7 +229,7 @@ public abstract class KDTree<T>{
             for(int i = super._dimensions; i-- > 0 ;){
                 distance += sqr(arr[--offset] - location[i]);
             }
-            return distance;
+            return Math.sqrt(distance);
         }
 
     }

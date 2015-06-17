@@ -9,7 +9,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import tools.WorldTools;
+import mcagent.util.WorldTools;
 
 import java.util.*;
 
@@ -25,12 +25,19 @@ public class MoveShort extends Move {
     public MoveShort(double toX, double toY, double toZ) {
         super(toX, toY, toZ);
         EntityPlayerSP player = PlayerController.getInstance().getPlayer();
-        BlockPos from = new BlockPos(player.getPosition());
+        this.from = new BlockPos(player.getPosition()).add(0,-1,0);
+        this.to = new BlockPos(toX,toY,toZ);
     }
-
     public MoveShort(BlockPos from, BlockPos to) {
         super(to.getX(), to.getY(), to.getZ());
         this.from = new BlockPos(from);
+        this.to = new BlockPos(to);
+    }
+    public MoveShort(BlockPos to) {
+        super(to.getX(), to.getY(), to.getZ());
+        EntityPlayerSP player = PlayerController.getInstance().getPlayer();
+        this.from = new BlockPos(player.getPosition()).add(0,-1,0);
+        this.to = new BlockPos(to);
     }
 
     @Override
@@ -40,27 +47,35 @@ public class MoveShort extends Move {
         EntityPlayerSP player = pc.getPlayer();
         World w = pc.getWorld();
         if(path.isEmpty()) {
-            debug.reset(this);
-            status = ControllerStatus.FINISHED;
-            return;
-        }
-        BlockPos ppos = player.getPosition();
-        if(player.getPositionVector().distanceTo(new Vec3(toX, toY, toZ)) < 0.5) {
-            while(!path.removeFirst().equals(to));
-            setDelay(10);
-            //pc.stopMoving();
-            //to = null;
-            for(BlockPos p: path) {
-                if (WorldTools.isValidPath(w, ppos, p) || to == null) {
-                    to = p;
-                }
-                else break;
+            if(player.getPositionVector().distanceTo(new Vec3(toX,toY,toZ)) < 0.5) {
+                debug.reset(this);
+                status = ControllerStatus.FINISHED;
+                return;
             }
-            System.out.format("from: %s | to: %s | g: %s\n", ppos, to, path.getLast());
-            debug.debugBlock(this, to, Block.getStateById(138));
+            else {
+                moveTo(toX,toY,toZ);
+            }
         }
-        Vec3 loc = new Vec3(to.getX()+0.5,to.getY()+1,to.getZ()+0.5);
-        moveTo(loc.xCoord, loc.yCoord, loc.zCoord);
+        else {
+            BlockPos ppos = player.getPosition();
+            Vec3 loc = new Vec3(to.getX() + 0.5, to.getY() + 1, to.getZ() + 0.5);
+            if (player.getPositionVector().distanceTo(new Vec3(loc.xCoord, loc.yCoord, loc.zCoord)) < 0.5) {
+                while (!path.removeFirst().equals(to)) ;
+                setDelay(10);
+                //pc.stopMoving();
+                //to = null;
+                for (BlockPos p : path) {
+                    if (WorldTools.isValidPath(w, ppos, p) || to == null) {
+                        to = p;
+                    } else break;
+                }
+                System.out.format("from: %s | to: %s | g: %s\n", ppos, to, path.getLast());
+                debug.debugBlock(this, to, Block.getStateById(138));
+                loc = new Vec3(to.getX() + 0.5, to.getY() + 1, to.getZ() + 0.5);
+            }
+            //Vec3 loc = new Vec3(to.getX() + 0.5, to.getY() + 1, to.getZ() + 0.5);
+            moveTo(loc.xCoord, loc.yCoord, loc.zCoord);
+        }
     }
 
     private void moveTo(double x, double y, double z) {
@@ -93,12 +108,10 @@ public class MoveShort extends Move {
         delay = Minecraft.getMinecraft().getSystemTime()+ticks;
     }
 
-    //PlayerController pc, World w, BlockPos from, final BlockPos to
-    @Override
     public boolean calculate() {
-        PlayerController pc = PlayerController.getInstance();
-        EntityPlayerSP player = pc.getPlayer();
-        World w = pc.getWorld();
+        //PlayerController pc = PlayerController.getInstance();
+        //EntityPlayerSP p = Minecraft.getMinecraft().thePlayer;
+        World w = Minecraft.getMinecraft().theWorld;
         class Tuple implements Comparable<Tuple> {
             LinkedList<BlockPos> path;
             double f,h;
@@ -106,7 +119,7 @@ public class MoveShort extends Move {
                 this.path = path;
                 this.f = f;
                 BlockPos b = path.getLast();
-                this.h = b.distanceSqToCenter(toX,toY,toZ);
+                this.h = Math.abs(b.getX()-toX)+Math.abs(b.getY()-toY)+Math.abs(b.getZ()-toZ);
             }
             @Override
             public boolean equals(Object o) {
@@ -118,16 +131,17 @@ public class MoveShort extends Move {
             public int compareTo(Tuple o) {
                 return (this.h < o.h ? -1:1);
             }
-            public Tuple add(BlockPos p, double c) {
-                LinkedList<BlockPos> npath = new LinkedList<BlockPos>(path);
-                npath.add(p);
-                return new Tuple(npath, f+c);
+
+            @Override
+            public int hashCode() {
+                BlockPos b = path.getLast();
+                return b.getX() + (int)(WorldGrid.SURFACE_GRID_SIZE * b.getY()) + (int)(WorldGrid.SURFACE_GRID_SIZE*WorldGrid.SURFACE_GRID_SIZE*b.getZ());
             }
         }
-        List<Tuple> items = new ArrayList<Tuple>();
-        List<BlockPos> hist = new ArrayList<BlockPos>();
+        PriorityQueue<Tuple> pool = new PriorityQueue<Tuple>();
+        HashSet<BlockPos> hist = new HashSet<BlockPos>();
         LinkedList<BlockPos> q = new LinkedList<BlockPos>(); q.add(from);
-        items.add(new Tuple(q, 0));
+        pool.add(new Tuple(q, 0));
 
         int[][] search = new int[][] {
                 new int[] {1,0},
@@ -135,41 +149,38 @@ public class MoveShort extends Move {
                 new int[] {-1,0},
                 new int[] {0,-1},
         };
+
         int T = 0;
+
+Loop1:
         while(true) {
             T++;
-            if(items.isEmpty() || T > 5000) {
-                //search[24][2]++;
+            if(pool.isEmpty() || T > WorldGrid.MAX_DISTANCE*WorldGrid.MAX_DISTANCE/4) {
                 return false;
             }
-            Tuple t = Collections.min(items);
-            //System.out.format("T: %5d | N: %10d | t.f: %8.2f | t.h: %8.2f | b: %s | g: %s\n", T, items.size(), t.f, t.h, t.path.getLast(), to);
-            items.remove(t);
-            BlockPos b1 = t.path.getLast();
-            if(b1.distanceSqToCenter(toX, toY, toZ) < 0.5) {
-                path = t.path;
-                path.pollLast();
-                return true;
-            }
-
+            Tuple t = pool.poll();
+            BlockPos b = t.path.getLast();
+            //System.out.format("T: %5d | N: %10d | t.f: %8.2f | t.h: %8.2f | b: %s | g: %s\n", T, pool.size(), t.f, t.h, b, to);
             for(int[] s: search) {
-                int toX = b1.getX()+s[0], toZ = b1.getZ()+s[1];
-                BlockPos b2 = WorldTools.getAccessibleBlock(w, b1, toX, toZ);
-                if(b2 == null) break;
-                Tuple t2 = t.add(b2, 1+Math.abs(b1.getY()-b2.getY())/2.);
-                if(!items.contains(t2) && !hist.contains(b2)) {
-                    hist.add(b2);
-                    items.add(t2);
+                BlockPos b2 = b.add(s[0],0,s[1]);
+                if(WorldTools.isSolid(w, b2)) b2 = WorldTools.findAboveSurfaceBlock(w, b2);
+                else b2 = WorldTools.findBelowSurfaceBlock(w,b2);
+                if(hist.contains(b2)) continue;
+                if(b2.equals(to)) {
+                    q = new LinkedList<BlockPos>(t.path);
+                    break Loop1;
                 }
-                else if(items.contains(t2)) {
-                    Tuple t3 = items.get(items.indexOf(t2));
-                    if(t2.f < t3.f) {
-                        items.remove(t3);
-                        items.add(t2);
-                    }
+                int d = b2.getY() - b.getY();
+                if(-3 <= d && d <= 1) {
+                    LinkedList<BlockPos> npath = new LinkedList<BlockPos>(t.path);
+                    npath.add(b2);
+                    hist.add(b2);
+                    pool.add(new Tuple(npath, t.f + 0)); //if i want to use A*, will have to also add the distance between b,b2
                 }
             }
         }
+        path = q;
+        return true;
     }
 
     public static boolean pathExists(BlockPos from, BlockPos to) {

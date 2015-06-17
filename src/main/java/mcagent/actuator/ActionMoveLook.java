@@ -17,6 +17,7 @@ public class ActionMoveLook extends PlayerControllerAction {
         this.goalZ = goalZ;
         moveAction = new ActionMove(goalX, goalY, goalZ);
         if(moveAction.getStatus() == ControllerStatus.FAILURE) this.status = ControllerStatus.FAILURE;
+        else this.status = ControllerStatus.BUSY;
     }
 
 

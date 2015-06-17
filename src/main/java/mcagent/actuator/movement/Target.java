@@ -52,4 +52,8 @@ public class Target {
     }
     public BlockPos getBlock() { return block; }
 
+    @Override
+    public String toString() {
+        return super.toString() + String.format(" {%6d, %6d, %6d}",x,y,z);
+    }
 }

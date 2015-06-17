@@ -1,12 +1,8 @@
 package autoplayer;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import tools.WorldTools;
 
 import java.util.Random;
 

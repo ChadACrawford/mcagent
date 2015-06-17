@@ -4,15 +4,20 @@ import mcagent.Debugger;
 import mcagent.actuator.PlayerController;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import tools.KDTree;
-import tools.WorldTools;
+import org.lwjgl.opengl.GL11;
+import mcagent.util.KDTree;
+import mcagent.util.WorldTools;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.PriorityQueue;
+import java.util.List;
 
 /**
  * Created by Chad on 5/25/2015.
@@ -47,6 +52,17 @@ public class WorldGrid {
     public Target getNearestTarget(double x, double y, double z) {
         return tree.nearest(new double[] {x,y,z}).payload;
     }
+    public List<Target> getNearestTargets(BlockPos p, int k) {
+        return getNearestTargets(p.getX(), p.getY(), p.getZ(), k);
+    }
+    public List<Target> getNearestTargets(double x, double y, double z, int k) {
+        ArrayList<KDTree.SearchResult<Target>> results = tree.nearestNeighbours(new double[] {x,y,z}, k);
+        LinkedList<Target> rets = new LinkedList<Target>();
+        for(KDTree.SearchResult<Target> t: results) {
+            rets.add(t.payload);
+        }
+        return rets;
+    }
 
     private Target addTarget(Target t) {
         tree.addPoint(t.coords(), t);
@@ -67,8 +83,32 @@ public class WorldGrid {
             debug.debugBlock(this, t.getBlock(), Block.getStateById(89));
         }
     }
+    public void drawEdges() {
+        if(list == null || list.isEmpty()) return;
+        Tessellator d = Tessellator.getInstance();
+        WorldRenderer w = d.getWorldRenderer();
+        int i = 0;
+        EntityPlayerSP p = Minecraft.getMinecraft().thePlayer;
+        Vec3 pos = p.getPositionVector();
+        GL11.glLineWidth(6f);
+        w.startDrawing(GL11.GL_LINES);
+        double px = pos.xCoord, py = pos.yCoord, pz = pos.zCoord;
+        for(Target t1: list) {
+            for(Target t2: t1.getNeighbors()) {
 
-    private boolean inRange(int x, int z) {
+                w.addVertex(t1.getX() + 0.5, t1.getY(), t1.getZ()+0.5);
+                w.addVertex(t2.getX() + 0.5, t2.getY(), t2.getZ() + 0.5);
+                //w.finishDrawing();
+
+                i++;
+            }
+        }
+        d.draw();
+
+        //System.out.println(i);
+    }
+
+    public boolean inRange(int x, int z) {
         return !(Math.abs(x-centerX) > SURFACE_SEARCH_SIZE ||
                     Math.abs(z-centerZ) > SURFACE_SEARCH_SIZE);
     }
@@ -105,6 +145,9 @@ public class WorldGrid {
                 }
             }
         }
+    }
+    public void explore(BlockPos p) {
+        explore(p.getX(), p.getY(), p.getZ());
     }
 
     public void exploreCaves(Target target) {

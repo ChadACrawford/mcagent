@@ -1,13 +1,10 @@
 package autoplayer;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import tools.WorldTools;
+import mcagent.util.WorldTools;
 
 import java.util.*;
 

@@ -5,7 +5,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
-import tools.WorldTools;
+import mcagent.util.WorldTools;
 
 /**
  * Created by Chad on 3/28/2015.
@@ -18,7 +18,7 @@ public class PlayerController {
     public PlayerController(Minecraft mc, EntityPlayerSP p) {
         this.mc = mc;
         this.p = p;
-        overrideKeyBindings();
+        //overrideKeyBindings();
     }
 
     OverrideKeyBinding kForward;

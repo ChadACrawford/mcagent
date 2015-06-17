@@ -149,7 +149,7 @@ Build 1.8-11.14.0.1296:
 		
 		Some notes:
 		Almost all int x, int y, int z parameters have been changed to BlockPos class
-		ForgeDirection has been removed, replaced by net.minecraft.util.EnumFacing.
+		ForgeDirection has been removed, replaced by net.minecraft.mcagent.util.EnumFacing.
 		All FML classes have moved from packet cpw.mods.fml to net.minecraftforge.fml
 		Fluid Rendering has been disabled for the time being, to be re-evaulated and a test mod created for it.
 		Minecraft now uses a Model based system for rendering blocks and Items. The intention is to expand the model format to better suit modder's needed once it is evaulated.
@@ -222,7 +222,7 @@ Build 1.8-11.14.0.1296:
 	LexManos: Fix crafting of non-oak fences/gates.
 	LexManos: Fix MC-30864 (sending web links in chat)
 	LexManos: Fix recipies for stone variants.
-	Chicken-Bones: Allow blocks to render in multiple layers
+	Chicken-Bones: Allow blocks to mcagent.util.render in multiple layers
 	lumien231: Fixes #1603: Moving the start of the update thread to the pre init of the forge mod container
 	LexManos: Fix potential NPE when loading a single player world where you were saved in a unloaded dimension. Closes #1575
 	LexManos: Call World.init from DimensionManager.initDimension Closes #1551
@@ -336,7 +336,7 @@ Build 1.7.10-10.13.2.1286:
 	asiekierka: fix shouldRefresh being too broad in tile entity update
 
 Build 1.8-11.14.0.1285-1.8:
-	Chicken-Bones: Allow blocks to render in multiple layers
+	Chicken-Bones: Allow blocks to mcagent.util.render in multiple layers
 
 Build 1.7.10-10.13.2.1284:
 	lumien231: Fix versionCheck config option
@@ -461,7 +461,7 @@ Build 1.7.10-10.13.2.1253:
 	draco18s:
 		Update RenderBlockFluid.java
 		
-		Added tessellator calls to render the block's back faces, so that the liquid properly renders when the player is immersed in the fluid.
+		Added tessellator calls to mcagent.util.render the block's back faces, so that the liquid properly renders when the player is immersed in the fluid.
 
 Build 1.8-11.14.0.1252-1.8:
 	LexManos: Fix finding of spawn location for mobs. Closes #1546
@@ -688,7 +688,7 @@ Build 1.7.10-10.13.1.1217:
 		MinecraftForge/FML@cad11f3165505e6d725411a9fc2c2ee8362f5827 Allow injecting alternative container types. This is the core support code for allowing sponge plugins!
 	michafla:
 		check for IFluidBlock (in addition to Material.liquid) when
-		determining render height so that non-liquids (gases) render correctly
+		determining mcagent.util.render height so that non-liquids (gases) mcagent.util.render correctly
 	kat.swales: Fixed Clientside GameProfile UUID being null on offline mode
 	cpw:
 		MinecraftForge/FML@63b64482e6dd4c3e2226ec002ceee549045c35ed Add jsr305 dev-time dependancy for Nullable/Nonnull annotations. Unneeded at runtime.
@@ -700,7 +700,7 @@ Build 1.7.10-10.13.1.1216-new:
 Build 1.7.10-10.13.1.1215-new:
 	michafla:
 		check for IFluidBlock (in addition to Material.liquid) when
-		determining render height so that non-liquids (gases) render correctly
+		determining mcagent.util.render height so that non-liquids (gases) mcagent.util.render correctly
 
 Build 1.7.10-10.13.1.1214-new:
 	cpw:
@@ -766,7 +766,7 @@ Build 1.7.10-10.13.0.1200:
 	JeanGlassmaker: Adds getLocalizedName and getUnlocalizedName to FluidStack
 
 Build 1.7.10-10.13.0.1199:
-	vazkii: Fixed items with more than 2 render passes rendering weird in first person
+	vazkii: Fixed items with more than 2 mcagent.util.render passes rendering weird in first person
 	LexManos: Fix patch screwup in Skyboy's Fishing PR -.-
 	LexManos: Fix metadata for every permutation -.- Closes #1294
 	t.tomkins:
@@ -1262,7 +1262,7 @@ Build 1.7.2-10.12.1.1096:
 	Christian: MinecraftForge/FML@4512f8e5e316ddaf6a4fe35470f1f88dcdddae1a Warn when the objectholder finds nothing in the registry. Helps debug mismatched names. Also, actually make the scoping thing work with objectholder
 
 Build 1.7.2-10.12.1.1095:
-	fry: Added world display list render events
+	fry: Added world display list mcagent.util.render events
 
 Build 1.7.2-10.12.1.1094:
 	foka_12:
@@ -1626,7 +1626,7 @@ Build 1.7.2-10.12.0.1019:
 		MinecraftForge/FML@8633d780c925ebb719c37ac52e2f3db5f9957895 And make a loud message if there isn't a modcontainer found, substitute Minecraft. In general, this can only happen for coremods not properly registering their code. Closes #363
 
 Build 1.7.2-10.12.0.1018:
-	LexManos: Fix imporerly efficient tools breaking blocks to fast.
+	LexManos: Fix imporerly efficient mcagent.util breaking blocks to fast.
 
 Build 1.7.2-10.12.0.1017:
 	LexManos: Fixed potential NPE in SlotCrafting, and added ItemStack sensitive version fo hasContainerItem. Closes #854
@@ -1644,7 +1644,7 @@ Build 1.7.2-10.12.0.1014:
 	LexManos: Implement PlayerPickupXpEvent, fired when a player aquires XP from a EntityXPOrb. Closes #942
 	LexManos: Exclude cobblestone slab recipe from ore dictification, closes #940
 	LexManos: Add the ability for custom records to have finer control over there sound resource location. Closes #933
-	LexManos: Don't short circuit item icons for multiple render passes while being used. Closes #929
+	LexManos: Don't short circuit item icons for multiple mcagent.util.render passes while being used. Closes #929
 
 Build 1.7.2-10.12.0.1013:
 	LexManos: Fix Furnace stopping on 63rd Item, Closes #947
@@ -1823,7 +1823,7 @@ Build 1.7.2-10.12.0.984:
 		MinecraftForge/FML@6f1da6550e10164bd6c678829f111bb5de9383b6 Fix up mcpname derp in GuiScrollingList.
 
 Build 1.7.2-10.12.0.982:
-	Adubbz: Fixed sky colour transitions on a render distance of 16, fixed the WorldGen of various things
+	Adubbz: Fixed sky colour transitions on a mcagent.util.render distance of 16, fixed the WorldGen of various things
 
 Build 1.7.2-10.12.0.981:
 	jk-5: Update ForgeMessage.java
@@ -1871,10 +1871,10 @@ Build 1.7.2-10.12.0.972:
 		MinecraftForge/FML@6a5f9e135f88b662e4e01e8882f861448910ca90 Fix example mod code for 1.7
 
 Build 1.7.2-10.12.0.971:
-	Christian: Allow tools to override their material harvest levels.
+	Christian: Allow mcagent.util to override their material harvest levels.
 
 Build 1.7.2-10.12.0.970:
-	Christian: Tidier implementation of previous commit. Should fix for subclasses of individual tools too
+	Christian: Tidier implementation of previous commit. Should fix for subclasses of individual mcagent.util too
 
 Build 1.7.2-10.12.0.969:
 	Christian: Add in harvesting abilities of the items, should fix effectiveness
@@ -1882,7 +1882,7 @@ Build 1.7.2-10.12.0.969:
 Build 1.7.2-10.12.0.968:
 	Christian:
 		Updated FML:
-		MinecraftForge/FML@f8d6213829d570501166d64d7c8bb4977567131f Update render registry
+		MinecraftForge/FML@f8d6213829d570501166d64d7c8bb4977567131f Update mcagent.util.render registry
 		MinecraftForge/FML@ec316f113fefef12f6defed9eb68de368d7f4420 AT for renderblocks
 
 Build 1.7.2-10.12.0.967:
@@ -1976,7 +1976,7 @@ Build 1.7.2-10.12.0.967:
 	LexManos: Fix debug HUD rendering semi-transparently.
 	LexManos: Temporary fix for items rendering with effects on one layer. Restores default vanilla rendering, which is considered a bug in modded community.
 	LexManos: Move Grass {Flower} registry to BiomeGenBase as 1.7 made flowers Biome specifc, this means modders who wish to add global base flowers need to add them to all the biomes indavidually.
-	LexManos: Fixed accedential inverted logic that caused Potions to render incorrectly. Thanks iChun.
+	LexManos: Fixed accedential inverted logic that caused Potions to mcagent.util.render incorrectly. Thanks iChun.
 	LexManos: Fix items rendering on the GUI with invalid state due to glint rendering changing it. Thanks iChun.
 	Christian:
 		Updated FML:
@@ -1990,7 +1990,7 @@ Build 1.7.2-10.12.0.967:
 	LexManos: Resize pending tile updates when it goes over the curent length. Fixed AIOOB error.
 	LexManos: Add a version check mechanic to startup, it is done in a seperate thread and has a config option to compleetly disable it. This allows us to notify users of new recomended builds. Hopefully stemming the flow of outdated help request. Also adds a warning to the main screen if you are running a 'Beta' Forge. Which means a Forge for a new version of Minecraft that we have not promoted a recomended build for yet.
 	LexManos: Fix dig speed on redstone ore and obsidian.
-	ohai.iChun: Add render offset to event.
+	ohai.iChun: Add mcagent.util.render offset to event.
 	Christian:
 		Updated FML:
 		MinecraftForge/FML@268bbabee6ae3fa1d596bd18e172298e26dc9ce4 Fix handling world reloads when new stuffs are added
@@ -2444,7 +2444,7 @@ Build 1.6.2-9.10.1.860:
 		MinecraftForge/FML@b5af446d7111730c7973c9f0d6b76e62b78b9131 Fix sidedness derp in LanguageRegistry.
 
 Build 1.6.2-9.10.1.859:
-	Christian: The partial tick should be available for all render player events. Weird it wasn't.
+	Christian: The partial tick should be available for all mcagent.util.render player events. Weird it wasn't.
 
 Build 1.6.2-9.10.1.858:
 	Christian: Reverting HarvestEvent, for new implementation
@@ -2485,7 +2485,7 @@ Build 1.6.2-9.10.1.851:
 Build 1.6.2-9.10.1.850:
 	claire.alexandria: Added tessellation methods to obj model, for ISBRH-friendliness
 	claire.alexandria: Fixed both RenderAllExcept behaviours
-	claire.alexandria: Added more render methods to IModelCustom interface.
+	claire.alexandria: Added more mcagent.util.render methods to IModelCustom interface.
 	jk-5:
 		Added GuiOpenEvent
 		
@@ -2574,7 +2574,7 @@ Build 1.6.2-9.10.0.839:
 		MinecraftForge/FML@ac065ff5f76b6c512b346366107efde66e9e1c88 Reset the IWorldGenerator seed for each mod, before calling. That should mean worldgen is consistent and not dependent on mod ordering, or mod sideeffects.
 
 Build 1.6.2-9.10.0.838:
-	LexManos: Cache world on all render passes in case some mod disables the first pass.
+	LexManos: Cache world on all mcagent.util.render passes in case some mod disables the first pass.
 	LexManos: Skipp toss event for null entity items. Closes #732
 
 Build 1.6.2-9.10.0.837:
@@ -2702,7 +2702,7 @@ Build 1.6.2-9.10.0.817:
 		added temperature to fluids
 		
 		it could be useful for blocks that are affected by temperature
-	mitchel.pyl: Fix render colour on bottom of fluids
+	mitchel.pyl: Fix mcagent.util.render colour on bottom of fluids
 	mitchel.pyl: Fix small derp
 
 Build 1.6.2-9.10.0.816:
@@ -2713,7 +2713,7 @@ Build 1.6.2-9.10.0.816:
 	7of9: Add cloud height to WorldType
 
 Build 1.6.2-9.10.0.815-miscchanges:
-	mitchel.pyl: Fix render colour on bottom of fluids
+	mitchel.pyl: Fix mcagent.util.render colour on bottom of fluids
 	mitchel.pyl: Fix small derp
 
 Build 1.6.2-9.10.0.812-miscchanges:
@@ -3350,7 +3350,7 @@ Build 1.5.2-7.8.0.705:
 
 Build 1.5.2-7.8.0.704:
 	LexManos: Fix another NPE when Items are in Block range with custom renderers, Modders keep your items out of the block range! Closes #581
-	LexManos: Fixed render count for stacks of blocks 40+ and distrabution of items based on scale. Closes #579
+	LexManos: Fixed mcagent.util.render count for stacks of blocks 40+ and distrabution of items based on scale. Closes #579
 
 Build 1.5.2-7.8.0.703:
 	Christian: Remember x & z passed to getTopSolidOrLiquidBlock and use it for foliage tests. Fixes #575
@@ -3397,7 +3397,7 @@ Build 1.5.2-7.8.0.695:
 		And a small change to make the 1.6 check not print it's stack trace.
 
 Build 1.5.2-7.8.0.693:
-	purpleposeidon: Fix render bounding box of trapped double chests
+	purpleposeidon: Fix mcagent.util.render bounding box of trapped double chests
 	jholcroft:
 		Make getStencilBits static
 		
@@ -3528,7 +3528,7 @@ Build 1.5.1-7.7.1.664:
 	LexManos: Allow spawning of Bonemeal particles even if block is not set.
 
 Build 1.5.1-7.7.1.663:
-	LexManos: Fix the BLOCK_3D render helper for items that aren't an instance of ItemBlock Closes #533
+	LexManos: Fix the BLOCK_3D mcagent.util.render helper for items that aren't an instance of ItemBlock Closes #533
 	LexManos: Fix replaceable checks to work on blocks with a non-replacable material, Closes #532
 	LexManos: Restore world unload event for client worlds Closes #531
 
@@ -3555,7 +3555,7 @@ Build 1.5.1-7.7.1.659:
 	LexManos: Adds a field to the player for maximum health. Player.dat additions are present, getMaxHealth() needs a magic number for spawning. Closes #527
 
 Build 1.5.1-7.7.1.657:
-	LexManos: New hook to allow Items to render Helmet overlays like pumpkins do.
+	LexManos: New hook to allow Items to mcagent.util.render Helmet overlays like pumpkins do.
 
 Build 1.5.1-7.7.1.656:
 	Christian:
@@ -3579,7 +3579,7 @@ Build 1.5.1-7.7.1.653:
 	LexManos: Fix AIOOB in crash report stack trimming.
 
 Build 1.5.1-7.7.1.652:
-	pahimar: Fix a derp in that we provision the various arrays for a face, even if we are not going to parse data into it. Solves NPEs for when obj models that don't have texture coordinates attempt to render.
+	pahimar: Fix a derp in that we provision the various arrays for a face, even if we are not going to parse data into it. Solves NPEs for when obj models that don't have texture coordinates attempt to mcagent.util.render.
 	pahimar: Missed a bit
 
 Build 1.5.1-7.7.1.651:
@@ -3772,7 +3772,7 @@ Build 1.5.1-7.7.0.608:
 		
 		Adds an event to EntityPlayer that is posted on player fall when the
 		player has flight capabilities.
-	Christian: Fix itemframe render bug
+	Christian: Fix itemframe mcagent.util.render bug
 	Christian: Add in block rotation support. It supports most vanilla blocks (hopefully), logs should be added soon.
 	jesse:
 		Access Transformer Changes
@@ -3834,7 +3834,7 @@ Build 1.5.1-7.7.0.604:
 Build 1.5.1-7.7.0.603:
 	Christian:
 		Updated FML:
-		MinecraftForge/FML@d9db27275ea06d37ae75e201140019ca152314b0 Fix mismatch screen a bit. Should render more correctly now and at least not be blank in a lot of circumstances..
+		MinecraftForge/FML@d9db27275ea06d37ae75e201140019ca152314b0 Fix mismatch screen a bit. Should mcagent.util.render more correctly now and at least not be blank in a lot of circumstances..
 	Christian: Allow items to decide if they can or cannot have book enchantments applied
 
 Build 1.5.1-7.7.0.602:
@@ -4117,7 +4117,7 @@ Build 1.5-7.7.0.559:
 	LexManos:
 		Updated FML:
 		MinecraftForge/FML@debbdc00be8ea1a261cdff83785ddc7100419a74 Capture Minecraft logs into FML logging
-		MinecraftForge/FML@74fffc6fdc2eda8caa9a7feb0826d7babb84751a Update next render to 40
+		MinecraftForge/FML@74fffc6fdc2eda8caa9a7feb0826d7babb84751a Update next mcagent.util.render to 40
 	Christian:
 		Call stitcher for non-existent textures as well. Probably allows
 		for generated textures. Hmmm
@@ -4126,7 +4126,7 @@ Build 1.5-7.7.0.559:
 		Updated FML:
 		MinecraftForge/FML@abe4f73a9a3158f6f9d1ea2334798f54a25817bf FIX massive performance issue with FML. Thanks to @sfPlayer1 for finding this epic derp on my part!
 	Christian: Add an Icon to the LiquidStack, for rendering the liquid in various ways
-	LexManos: Readd second render pass to TileEntities and Entities, patches were missed when merging in master branch. As note, CB can DIAF.
+	LexManos: Readd second mcagent.util.render pass to TileEntities and Entities, patches were missed when merging in master branch. As note, CB can DIAF.
 	LexManos: Fix compile error, forget to flush to disc.
 	LexManos: Make release quit on compile error.
 	Christian: Clean up Access Transformer mapping data
@@ -4182,7 +4182,7 @@ Build 13w09c-7.7.0.556-snapshot15:
 	LexManos: Make release quit on compile error.
 
 Build 13w09c-7.7.0.555-snapshot15:
-	LexManos: Readd second render pass to TileEntities and Entities, patches were missed when merging in master branch. As note, CB can DIAF.
+	LexManos: Readd second mcagent.util.render pass to TileEntities and Entities, patches were missed when merging in master branch. As note, CB can DIAF.
 	LexManos: Fix compile error, forget to flush to disc.
 
 Build 13w09c-7.7.0.553-snapshot15:
@@ -4206,7 +4206,7 @@ Build 13w09c-7.7.0.549-snapshot15:
 	LexManos:
 		Updated FML:
 		MinecraftForge/FML@debbdc00be8ea1a261cdff83785ddc7100419a74 Capture Minecraft logs into FML logging
-		MinecraftForge/FML@74fffc6fdc2eda8caa9a7feb0826d7babb84751a Update next render to 40
+		MinecraftForge/FML@74fffc6fdc2eda8caa9a7feb0826d7babb84751a Update next mcagent.util.render to 40
 
 Build 13w09c-7.7.0.548-snapshot15:
 	LexManos: Removed erroring imports and update build function to die on errors.
@@ -4261,7 +4261,7 @@ Build 13w05b-7.7.0.537-snapshot15:
 		We have not setup the download for that yet, to make it yourself just zip joined.srg name it deobfusication_data.zip and put it in lib
 
 Build 13w02b-7.7.0.536-snapshot15:
-	mehvids: Gave entities and tile entities access to the second render pass for translucency.
+	mehvids: Gave entities and tile entities access to the second mcagent.util.render pass for translucency.
 	Christian: Attempt to fix a possible NPE in the face of ChickenBones' hackery. ChickenBones. stop it!
 	Christian:
 		Fix a potential problem with "Entity already added" when using the dormant
@@ -4319,7 +4319,7 @@ Build 13w02b-7.7.0.536-snapshot15:
 	LexManos: Actually use the line parameter in ServerChatEvent, closes #401
 	LexManos: Kill .sh wrappers until someone writes more robust versions, closes #392 and closes #402
 	LexManos: Made LiquidStack.isLiquidEqual(ItemStack) properly check the contained liquid, in addition to obvious id/meta closes #399 and closes #403
-	LexManos: Add item frame transformations to the EntityItem render helper Closes #407
+	LexManos: Add item frame transformations to the EntityItem mcagent.util.render helper Closes #407
 	LexManos: Added a hook into SlotArmor so Items can control if they are classified as a Armor type. Closes #408
 	LexManos: Fixes comparison for items in creative inventory, closes #411
 	LexManos: Fix fortune modifier always passed as 0 to idDropped closes #412
@@ -4385,7 +4385,7 @@ Build 1.4.7-6.6.1.527:
 	LexManos: Actually use the line parameter in ServerChatEvent, closes #401
 	LexManos: Kill .sh wrappers until someone writes more robust versions, closes #392 and closes #402
 	LexManos: Made LiquidStack.isLiquidEqual(ItemStack) properly check the contained liquid, in addition to obvious id/meta closes #399 and closes #403
-	LexManos: Add item frame transformations to the EntityItem render helper Closes #407
+	LexManos: Add item frame transformations to the EntityItem mcagent.util.render helper Closes #407
 	LexManos: Added a hook into SlotArmor so Items can control if they are classified as a Armor type. Closes #408
 	LexManos: Fixes comparison for items in creative inventory, closes #411
 	LexManos: Fix fortune modifier always passed as 0 to idDropped closes #412
@@ -4407,7 +4407,7 @@ Build 1.4.7-6.6.1.522:
 	Christian: Fix possible null case for collision bounding box.
 
 Build 1.4.7-6.6.1.521:
-	mehvids: Gave entities and tile entities access to the second render pass for translucency.
+	mehvids: Gave entities and tile entities access to the second mcagent.util.render pass for translucency.
 	Christian:
 		Add in TESR culling, and a new TileEntity method to allow for differential sizing of the
 		TESR view culling vs the TE collision bounding box (the former defaults to the latter)
@@ -4484,7 +4484,7 @@ Build 1.4.7-6.6.1.514-TESRculling:
 	Christian: Bump the revision number for the TESR and renderpass changes
 
 Build 1.4.7-6.6.0.513-TESRculling:
-	mehvids: Gave entities and tile entities access to the second render pass for translucency.
+	mehvids: Gave entities and tile entities access to the second mcagent.util.render pass for translucency.
 
 Build 1.4.7-6.6.0.511:
 	Christian: Fix NPE causing issue with the cache. Derpy derp.
@@ -4507,7 +4507,7 @@ Build 13w02b-7.7.0.508-snapshot15:
 		Fix incorrect end length calculation. Closes #161 Thanks BStramke!
 	LexManos: Fix check in getItem() to allow lowest item ID #361
 	CovertJaguar:
-		Fixed render passes for EntityItems
+		Fixed mcagent.util.render passes for EntityItems
 		
 		Should be < instead of <=
 	Christian:
@@ -4592,7 +4592,7 @@ Build 1.4.7-6.6.0.504:
 Build 1.4.7-6.6.0.503:
 	scott: Add ability to WorldTypes to display the 'Customize' button and react to it
 	CovertJaguar:
-		Fixed render passes for EntityItems
+		Fixed mcagent.util.render passes for EntityItems
 		
 		Should be < instead of <=
 	Christian: Merge part of PR #375 related to ChunkEvent.Load for the client side
@@ -4817,13 +4817,13 @@ Build 1.4.6-6.5.0.457:
 		8b7778c Don't be as alarming about item overwrites.
 
 Build 1.4.6-6.5.0.456:
-	Christian: Fix binding the texture for multiple render passes. Thanks mdiyo! Closes #320
+	Christian: Fix binding the texture for multiple mcagent.util.render passes. Thanks mdiyo! Closes #320
 
 Build 1.4.6-6.5.0.455:
-	Christian: Allow RenderItem to be easily overridden for things that need to render entityitems. IronChest, BuildCraft, RP2, whatever...
+	Christian: Allow RenderItem to be easily overridden for things that need to mcagent.util.render entityitems. IronChest, BuildCraft, RP2, whatever...
 
 Build 1.4.6-6.5.0.454:
-	LexManos: Fixed items dieing improperly due to new EntityItem sync changes, also made items render offset when rendered in 3d.
+	LexManos: Fixed items dieing improperly due to new EntityItem sync changes, also made items mcagent.util.render offset when rendered in 3d.
 
 Build 1.4.6-6.5.0.453:
 	Christian: Fix RenderItem so that forge textures load for it
@@ -5297,10 +5297,10 @@ Build 6.0.1.348:
 
 Build 6.0.1.345:
 	LexManos: EntityLiving.experianceValue private->public for Issue #225
-	LexManos: Changeable name tag render distance for PR: 174
+	LexManos: Changeable name tag mcagent.util.render distance for PR: 174
 	LexManos: Remove some debug code
 	LexManos: New hook to allow items to be on multiple creative tabs PR 176
-	LexManos: Fix issue where scroll bar would not render when switching tab pages.
+	LexManos: Fix issue where scroll bar would not mcagent.util.render when switching tab pages.
 	LexManos: Added metadata sensitve experience to furnace recipies and added Item callback to determine experience gain.
 	LexManos: Exposed functions for adding superflat presets.
 	LexManos: New hook to allow for custom beacon support blocks.
@@ -5395,7 +5395,7 @@ Build 5.0.0.322:
 Build 5.0.0.321:
 	Christian:
 		Update FML (entire change log since last by me): 62a6b52
-		62a6b52 Fix RenderRegistry render ID - now at 36 Fix SpriteMaps - they're running out fast! Switch to forge if you can! RenderBiped now has an armo
+		62a6b52 Fix RenderRegistry mcagent.util.render ID - now at 36 Fix SpriteMaps - they're running out fast! Switch to forge if you can! RenderBiped now has an armo
 		b845cde Fix up FML python script for forge
 		2c36dfb Update to MCP pre 3. Fixes some weirdnesses with explosions.
 		acd880d Merge branch '1.4'
@@ -5501,7 +5501,7 @@ Build 4.2.5.306:
 	LexManos: Add some accessors to teh ChunkLoader tickets.
 
 Build 4.2.5.305:
-	ohai.iChun: Fix not passing right render pass to Item class.
+	ohai.iChun: Fix not passing right mcagent.util.render pass to Item class.
 
 Build 4.2.5.303:
 	Christian: Fix bounds checking on chunkcache. Should fix a bunch of rp2 and maybe other extended tile entity code
@@ -5708,7 +5708,7 @@ Build 4.1.2.269:
 	LexManos: Redirect a lot of functions through WorldProvider for Mystcraft, allowing them to be overriden by the provider.
 
 Build 4.1.2.268:
-	CovertJaguar: Fixed Entity Item render helper
+	CovertJaguar: Fixed Entity Item mcagent.util.render helper
 
 Build 4.1.2.267:
 	ohai.iChun: Fix pick block key giving invalid spawn eggs
@@ -5849,7 +5849,7 @@ Build 4.0.0.242:
 Build 4.0.0.240:
 	Christian:
 		Update FML: c0d1348
-		c0d1348 Add in an ItemRenderer null check so FML can run render adding mods
+		c0d1348 Add in an ItemRenderer null check so FML can run mcagent.util.render adding mods
 		482c163 Inverted boolean logic. Grrr.
 		221d113 ModLoader mob spawns use packet 24- build a bypass system so that they can still use it
 		f19f426 Remove debug statements
@@ -6110,7 +6110,7 @@ Build 4.0.0.190:
 	LexManos: Seperated block placmenet logic in ItemBlock as immibis requested: https://github.com/MinecraftForge/MinecraftForge/pull/110
 	LexManos: New Command event.
 	LexManos: Fix issue with default getContainerItemStack
-	LexManos: Add render distance property to TileEntity.
+	LexManos: Add mcagent.util.render distance property to TileEntity.
 
 Build 4.0.0.189:
 	LexManos: Updated FML, should fix the new included eclipse workspace.
@@ -6519,7 +6519,7 @@ Build 3.0.1.81:
 	LexManos: Fixed TileEntity bug that was causing Ghost tile entities.
 
 Build 3.0.1.80:
-	LexManos: Multi-pass item rendering now uese proper render pass number.
+	LexManos: Multi-pass item rendering now uese proper mcagent.util.render pass number.
 
 Build 3.0.1.79:
 	LexManos: Added slope velocity hook for Covert
@@ -6622,19 +6622,19 @@ Build 1.4.1.59:
 	LexManos: Readded the deprecated interface ICustomItemRenderer. Added method to enforce deprecation cross Minecraft versions.
 
 Build 1.4.1.58:
-	newthead: Added new item render interfaces to Forge client
+	newthead: Added new item mcagent.util.render interfaces to Forge client
 	newthead: Added hook for rendering equipped items
-	newthead: Clarified render option for inventory items
-	newthead: Added remaining item render hooks, and fixed a static method access
-	newthead: Added render code for inventory items and entity items.
-	newthead: Cleanup/fix item render hooks
+	newthead: Clarified mcagent.util.render option for inventory items
+	newthead: Added remaining item mcagent.util.render hooks, and fixed a static method access
+	newthead: Added mcagent.util.render code for inventory items and entity items.
+	newthead: Cleanup/fix item mcagent.util.render hooks
 	newthead: Added additional flag for rendering entity item bobbing
 	newthead: Merged item rendering interfaces into a single IItemRenderer
-	newthead: Updated render hooks and registration to use the IItemRenderer interface
-	newthead: Modified patches to use new item render hooks
+	newthead: Updated mcagent.util.render hooks and registration to use the IItemRenderer interface
+	newthead: Modified patches to use new item mcagent.util.render hooks
 	newthead: Merged item rendering interfaces into a single IItemRenderer
 	CovertJaguar: Fix for network code.
-	newthead: Changed render hook checks to all use ItemStack instead of itemID
+	newthead: Changed mcagent.util.render hook checks to all use ItemStack instead of itemID
 	newthead: Reverted vanilla texture binding to an explicit if() statement based on item ID
 	LexManos: Fixed dyes showing twice in creative list
 	LexManos: Bumped version number to 1.4.1

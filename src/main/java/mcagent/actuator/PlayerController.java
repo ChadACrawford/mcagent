@@ -20,16 +20,12 @@ public class PlayerController implements Controller {
     private ControllerStatus status = ControllerStatus.WAITING;
     private LinkedList<PlayerControllerAction> currentActions = new LinkedList<PlayerControllerAction>();
 
-    OverrideKeyBinding keyUp;
-    OverrideKeyBinding keyDown;
-    OverrideKeyBinding keyLeft;
-    OverrideKeyBinding keyRight;
-    OverrideKeyBinding keyJump;
-    OverrideKeyBinding keyAttack;
+    static OverrideKeyBinding keyUp,keyDown,keyLeft,keyRight,keyJump,keyAttack;
 
     private PlayerController() {
         player = Minecraft.getMinecraft().thePlayer;
         world = Minecraft.getMinecraft().theWorld;
+        //setKeyBindings();
     }
 
     public static PlayerController getInstance() {
@@ -40,7 +36,7 @@ public class PlayerController implements Controller {
     }
 
     private static final boolean OVERRIDE_KEYS = false;
-    private void setKeyBindings() {
+    public static void setKeyBindings() {
         Minecraft mc = Minecraft.getMinecraft();
         KeyBinding kbf = mc.gameSettings.keyBindForward;
         KeyBinding kbb = mc.gameSettings.keyBindBack;
@@ -49,20 +45,29 @@ public class PlayerController implements Controller {
         KeyBinding kbj = mc.gameSettings.keyBindJump;
         KeyBinding kba = mc.gameSettings.keyBindAttack;
 
-        keyUp = new OverrideKeyBinding(kbf.getKeyDescription(), kbf.getKeyCode(), kbf.getKeyCategory());
-        keyDown = new OverrideKeyBinding(kbf.getKeyDescription(), kbf.getKeyCode(), kbf.getKeyCategory());
-        keyLeft = new OverrideKeyBinding(kbf.getKeyDescription(), kbf.getKeyCode(), kbf.getKeyCategory());
-        keyRight = new OverrideKeyBinding(kbf.getKeyDescription(), kbf.getKeyCode(), kbf.getKeyCategory());
-        keyJump = new OverrideKeyBinding(kbj.getKeyDescription(), kbj.getKeyCode(), kbj.getKeyCategory());
-        keyAttack = new OverrideKeyBinding(kba.getKeyDescription(), kba.getKeyCode(), kba.getKeyCategory());
-
         if(OVERRIDE_KEYS) {
+            keyUp = new OverrideKeyBinding(kbf.getKeyDescription(), kbf.getKeyCode(), kbf.getKeyCategory());
+            keyDown = new OverrideKeyBinding(kbb.getKeyDescription(), kbb.getKeyCode(), kbb.getKeyCategory());
+            keyLeft = new OverrideKeyBinding(kbl.getKeyDescription(), kbl.getKeyCode(), kbl.getKeyCategory());
+            keyRight = new OverrideKeyBinding(kbr.getKeyDescription(), kbr.getKeyCode(), kbr.getKeyCategory());
+            keyJump = new OverrideKeyBinding(kbj.getKeyDescription(), kbj.getKeyCode(), kbj.getKeyCategory());
+            keyAttack = new OverrideKeyBinding(kba.getKeyDescription(), kba.getKeyCode(), kba.getKeyCategory());
+
+
             mc.gameSettings.keyBindForward = keyUp;
             mc.gameSettings.keyBindBack = keyDown;
             mc.gameSettings.keyBindLeft = keyLeft;
             mc.gameSettings.keyBindRight = keyRight;
             mc.gameSettings.keyBindJump = keyJump;
             mc.gameSettings.keyBindAttack = keyAttack;
+        }
+        else {
+            keyUp = new OverrideKeyBinding(null, -1, null);
+            keyDown = new OverrideKeyBinding(null, -1, null);
+            keyLeft = new OverrideKeyBinding(null, -1, null);
+            keyRight = new OverrideKeyBinding(null, -1, null);
+            keyJump = new OverrideKeyBinding(null, -1, null);
+            keyAttack = new OverrideKeyBinding(null, -1, null);
         }
     }
 
@@ -71,13 +76,24 @@ public class PlayerController implements Controller {
 
         for(PlayerControllerAction action: currentActions) {
             action.act();
-            if(action.getStatus() == ControllerStatus.FINISHED || action.getStatus() == ControllerStatus.FAILURE) currentActions.remove(action);
+            if(action.getStatus() == ControllerStatus.FINISHED || action.getStatus() == ControllerStatus.FAILURE) {
+                System.out.println("Finished action " + action);
+                currentActions.remove(action);
+            }
         }
     }
 
-    public void moveTo(double x, double y, double z) {
-        PlayerControllerAction action = new ActionMove(x, y, z);
+    public void moveTo(double x, double y, double z, boolean look) {
+        PlayerControllerAction action;
+        if(look) {
+            action = new ActionMoveLook(x,y,z);
+        } else {
+            action = new ActionMove(x, y, z);
+        }
         currentActions.add(action);
+    }
+    public void moveTo(double x, double y, double z) {
+        moveTo(x,y,z,false);
     }
 
     public void lookAt(double x, double y, double z) {
@@ -106,15 +122,19 @@ public class PlayerController implements Controller {
     }
 
     public void left() {
+        //System.out.println("Left");
         keyLeft.press();
     }
     public void right() {
+        //System.out.println("Right");
         keyRight.press();
     }
     public void forward() {
+        //System.out.println("Forward");
         keyUp.press();
     }
     public void back() {
+        //System.out.println("Back");
         keyDown.press();
     }
     public void stopMoving() {

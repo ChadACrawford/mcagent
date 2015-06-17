@@ -1,4 +1,4 @@
-package tools;
+package mcagent.util;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.BlockPos;
