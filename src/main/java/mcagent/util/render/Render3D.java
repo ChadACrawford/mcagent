@@ -61,7 +61,7 @@ public class Render3D extends RenderBase
      */
     public Render3D()
     {
-        super();
+        super(Tessellator.getInstance());
     }
 
     /**

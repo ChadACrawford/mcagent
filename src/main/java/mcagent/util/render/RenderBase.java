@@ -152,7 +152,7 @@ public class RenderBase
      */
     public static void EnableDrawingMode()
     {
-        GlStateManager.disableTextureStates();
+        GlStateManager.disableTexture2D();
         GlStateManager.disableAlpha();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -171,7 +171,7 @@ public class RenderBase
         GlStateManager.depthMask(true);
         GlStateManager.disableBlend();
         GlStateManager.enableAlpha();
-        GlStateManager.enableTextureStates();
+        GlStateManager.enableTexture2D();
         GlStateManager.color(1.f, 1.f, 1.f, 1.f);
     }
 

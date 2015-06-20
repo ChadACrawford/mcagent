@@ -1,7 +1,10 @@
 package mcagent.actuator.movement;
 
 import mcagent.Debugger;
+import mcagent.MCAgent;
 import mcagent.actuator.PlayerController;
+import mcagent.util.render.Color;
+import mcagent.util.render.Render3D;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -25,9 +28,9 @@ import java.util.List;
 public class WorldGrid {
     // Constants
     public static final int MAX_NEIGHBORS = 10;
-    public static final double MAX_DISTANCE = 15.0;
+    public static final double MAX_DISTANCE = 20.0;
     public static final int SURFACE_GRID_SIZE = 10;
-    public static final int SURFACE_SEARCH_SIZE = 50;
+    public static final int SURFACE_SEARCH_SIZE = 60;
 
     private static WorldGrid instance = null;
 
@@ -83,28 +86,15 @@ public class WorldGrid {
             debug.debugBlock(this, t.getBlock(), Block.getStateById(89));
         }
     }
-    public void drawEdges() {
+    public void drawEdges(Render3D render) {
         if(list == null || list.isEmpty()) return;
-        Tessellator d = Tessellator.getInstance();
-        WorldRenderer w = d.getWorldRenderer();
-        int i = 0;
-        EntityPlayerSP p = Minecraft.getMinecraft().thePlayer;
-        Vec3 pos = p.getPositionVector();
-        GL11.glLineWidth(6f);
-        w.startDrawing(GL11.GL_LINES);
-        double px = pos.xCoord, py = pos.yCoord, pz = pos.zCoord;
         for(Target t1: list) {
             for(Target t2: t1.getNeighbors()) {
-
-                w.addVertex(t1.getX() + 0.5, t1.getY(), t1.getZ()+0.5);
-                w.addVertex(t2.getX() + 0.5, t2.getY(), t2.getZ() + 0.5);
-                //w.finishDrawing();
-
-                i++;
+                Vec3 v1 = new Vec3(t1.getX()+0.5,t1.getY()+0.5,t1.getZ()+0.5), v2 = new Vec3(t2.getX()+0.5,t2.getY()+0.5,t2.getZ()+0.5);
+                if(!t2.isCave()) render.Line(v1,v2,new Color(255,0,0),true);
+                else render.Line(v1,v2,new Color(0,255,0),true);
             }
         }
-        d.draw();
-
         //System.out.println(i);
     }
 
@@ -136,7 +126,7 @@ public class WorldGrid {
         }
 
         //calculate neighbors (probably will be a lengthy computation)
-        for(Target t: targets) {
+        for(Target t: list) {
             ArrayList<KDTree.SearchResult<Target>> results =  tree.nearestNeighbours(t.coords(), MAX_NEIGHBORS);
             for(KDTree.SearchResult<Target> s: results) {
                 if(s.distance < MAX_DISTANCE && t != s.payload

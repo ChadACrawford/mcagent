@@ -40,6 +40,7 @@ public class MoveShort extends Move {
         this.to = new BlockPos(to);
     }
 
+    BlockPos c = null;
     @Override
     public void move() {
         Debugger debug = Debugger.getInstance();
@@ -47,9 +48,10 @@ public class MoveShort extends Move {
         EntityPlayerSP player = pc.getPlayer();
         World w = pc.getWorld();
         if(path.isEmpty()) {
-            if(player.getPositionVector().distanceTo(new Vec3(toX,toY,toZ)) < 0.5) {
+            if(player.getPositionVector().distanceTo(new Vec3(toX,toY+1,toZ)) < 0.5) {
                 debug.reset(this);
                 status = ControllerStatus.FINISHED;
+                System.out.println("Finished!");
                 return;
             }
             else {
@@ -58,20 +60,22 @@ public class MoveShort extends Move {
         }
         else {
             BlockPos ppos = player.getPosition();
-            Vec3 loc = new Vec3(to.getX() + 0.5, to.getY() + 1, to.getZ() + 0.5);
-            if (player.getPositionVector().distanceTo(new Vec3(loc.xCoord, loc.yCoord, loc.zCoord)) < 0.5) {
-                while (!path.removeFirst().equals(to)) ;
+            if(c == null) c = path.getFirst();
+            Vec3 loc = new Vec3(c.getX() + 0.5, c.getY() + 1, c.getZ() + 0.5);
+            System.out.println(player.getPositionVector().distanceTo(new Vec3(loc.xCoord, loc.yCoord+1, loc.zCoord)));
+            if (player.getPositionVector().distanceTo(new Vec3(loc.xCoord, loc.yCoord+1, loc.zCoord)) < 0.5) {
+                while (!path.removeFirst().equals(c));
                 setDelay(10);
                 //pc.stopMoving();
                 //to = null;
                 for (BlockPos p : path) {
-                    if (WorldTools.isValidPath(w, ppos, p) || to == null) {
-                        to = p;
+                    if (WorldTools.isValidPath(w, ppos, p)) {
+                        c = p;
                     } else break;
                 }
-                System.out.format("from: %s | to: %s | g: %s\n", ppos, to, path.getLast());
-                debug.debugBlock(this, to, Block.getStateById(138));
-                loc = new Vec3(to.getX() + 0.5, to.getY() + 1, to.getZ() + 0.5);
+                System.out.format("from: %s | to: %s | g: %s\n", ppos, c, path.getLast());
+                debug.debugBlock(this, c, Block.getStateById(138));
+                loc = new Vec3(c.getX() + 0.5, c.getY() + 1, c.getZ() + 0.5);
             }
             //Vec3 loc = new Vec3(to.getX() + 0.5, to.getY() + 1, to.getZ() + 0.5);
             moveTo(loc.xCoord, loc.yCoord, loc.zCoord);
@@ -163,20 +167,24 @@ Loop1:
             //System.out.format("T: %5d | N: %10d | t.f: %8.2f | t.h: %8.2f | b: %s | g: %s\n", T, pool.size(), t.f, t.h, b, to);
             for(int[] s: search) {
                 BlockPos b2 = b.add(s[0],0,s[1]);
-                if(WorldTools.isSolid(w, b2)) b2 = WorldTools.findAboveSurfaceBlock(w, b2);
-                else b2 = WorldTools.findBelowSurfaceBlock(w,b2);
+                if(WorldTools.isSolid(w, b2)) {
+                    b2 = WorldTools.findAboveSurfaceBlock(w, b2);
+                    if(b2.getY()-b.getY()>1 || !WorldTools.open(w, b, 3) || !WorldTools.open(w, b2, 2)) continue;
+                }
+                else {
+                    b2 = WorldTools.findBelowSurfaceBlock(w, b2);
+                    int d = b.getY()-b2.getY();
+                    if(d > 3 || !WorldTools.open(w,b,2) || !WorldTools.open(w,b2,d+2)) continue;
+                }
                 if(hist.contains(b2)) continue;
                 if(b2.equals(to)) {
                     q = new LinkedList<BlockPos>(t.path);
                     break Loop1;
                 }
-                int d = b2.getY() - b.getY();
-                if(-3 <= d && d <= 1) {
-                    LinkedList<BlockPos> npath = new LinkedList<BlockPos>(t.path);
-                    npath.add(b2);
-                    hist.add(b2);
-                    pool.add(new Tuple(npath, t.f + 0)); //if i want to use A*, will have to also add the distance between b,b2
-                }
+                LinkedList<BlockPos> npath = new LinkedList<BlockPos>(t.path);
+                npath.add(b2);
+                hist.add(b2);
+                pool.add(new Tuple(npath, t.f + 0)); //if i want to use A*, will have to also add the distance between b,b2
             }
         }
         path = q;

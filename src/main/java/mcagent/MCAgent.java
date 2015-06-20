@@ -1,6 +1,8 @@
 package mcagent;
 import mcagent.actuator.PlayerController;
 import mcagent.actuator.movement.WorldGrid;
+import mcagent.util.render.Render3D;
+import mcagent.util.render.RenderBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.Tessellator;
@@ -8,6 +10,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -37,7 +41,7 @@ public class MCAgent {
         PlayerController.setKeyBindings();
         MCAgent mc = new MCAgent();
         FMLCommonHandler.instance().bus().register(mc);
-        FMLCommonHandler.instance().bus().register(mc);
+        MinecraftForge.EVENT_BUS.register(mc);
     }
 
     boolean init = false, busy=false;
@@ -55,48 +59,28 @@ public class MCAgent {
             WorldGrid.getInstance().explore(p.getPosition().getX(), p.getPosition().getY(), p.getPosition().getZ());
             WorldGrid.getInstance().debugTargets();
             PlayerController pc = PlayerController.getInstance();
-            //pc.moveTo(5000,100,5000,true);
+            pc.moveTo(5000,100,5000,true);
             System.out.println("Finished!");
             init = true;
         }
         else if(init) {
-            //PlayerController pc = PlayerController.getInstance();
-            //pc.act();
+            PlayerController pc = PlayerController.getInstance();
+            pc.act();
         }
     }
 
     @SubscribeEvent
-    public void onRenderTick(TickEvent.RenderTickEvent event) {
-        /*if(init) {
-            Tessellator t = Tessellator.getInstance();
-            EntityPlayerSP p = Minecraft.getMinecraft().thePlayer;
-            Vec3 pos = p.getPositionVector();
-            GL11.glPushMatrix();
-            GL11.glTranslated(pos.xCoord, pos.yCoord, pos.zCoord);
-            WorldGrid wg = WorldGrid.getInstance();
-            wg.drawEdges();
-            GL11.glPopMatrix();
-            //t.draw();
-        }*/
+    public void renderWorldLastEvent(RenderWorldLastEvent event) {
         if(init) {
-            EntityPlayerSP p = Minecraft.getMinecraft().thePlayer;
-            double doubleX = p.posX - 0.5;
-            double doubleY = p.posY + 0.1;
-            double doubleZ = p.posZ - 0.5;
-
-            GL11.glPushMatrix();
-            GL11.glTranslated(-doubleX, -doubleY, -doubleZ);
-            GL11.glColor3ub((byte) 255, (byte) 0, (byte) 0);
-            float mx = 9;
-            float my = 9;
-            float mz = 9;
-            GL11.glBegin(GL11.GL_LINES);
-            GL11.glVertex3f(mx + 0.4f, my, mz + 0.4f);
-            GL11.glVertex3f(mx - 0.4f, my, mz - 0.4f);
-            GL11.glVertex3f(mx + 0.4f, my, mz - 0.4f);
-            GL11.glVertex3f(mx - 0.4f, my, mz + 0.4f);
-            GL11.glEnd();
-            GL11.glPopMatrix();
+            RenderBase.EnableDrawingMode();
+            WorldGrid wg = WorldGrid.getInstance();
+            Render3D render = new Render3D();
+            render.setTessellator(Tessellator.getInstance());
+            render.setOffset(event.partialTicks);
+            wg.drawEdges(render);
+            RenderBase.DisableDrawingMode();
+            //System.out.println("FUCK IT ALL");
+            //t.draw();
         }
     }
 }

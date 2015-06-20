@@ -51,6 +51,9 @@ public class Target {
         return new double[] {x,y,z};
     }
     public BlockPos getBlock() { return block; }
+    public boolean isCave() {
+        return isCave;
+    }
 
     @Override
     public String toString() {

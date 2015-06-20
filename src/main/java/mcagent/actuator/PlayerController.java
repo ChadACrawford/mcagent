@@ -35,7 +35,7 @@ public class PlayerController implements Controller {
         return instance;
     }
 
-    private static final boolean OVERRIDE_KEYS = false;
+    private static final boolean OVERRIDE_KEYS = true;
     public static void setKeyBindings() {
         Minecraft mc = Minecraft.getMinecraft();
         KeyBinding kbf = mc.gameSettings.keyBindForward;

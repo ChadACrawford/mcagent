@@ -57,7 +57,7 @@ public class Render2D extends RenderBase
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GlStateManager.disableTextureStates();
+        GlStateManager.disableTexture2D();
 
         GlStateManager.color(color.red, color.green, color.blue, color.alpha);
 
@@ -71,7 +71,7 @@ public class Render2D extends RenderBase
         getTessellator().draw();
 
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
-        GlStateManager.enableTextureStates();
+        GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
     }
@@ -86,7 +86,7 @@ public class Render2D extends RenderBase
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GlStateManager.disableTextureStates();
+        GlStateManager.disableTexture2D();
 
         GlStateManager.color(color.red / 255.f, color.green / 255.f, color.blue / 255.f, color.alpha / 255.f);
 
@@ -97,7 +97,7 @@ public class Render2D extends RenderBase
         getRenderer().addVertex(start.xCoord + width, start.yCoord, 0);
         getTessellator().draw();
 
-        GlStateManager.enableTextureStates();
+        GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
     }
@@ -113,7 +113,7 @@ public class Render2D extends RenderBase
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GlStateManager.color(color.red / 255.f, color.green / 255.f, color.blue / 255.f, color.alpha / 255.f);
-        GlStateManager.disableTextureStates();
+        GlStateManager.disableTexture2D();
 
         GL11.glLineWidth(1.0f);
 
@@ -124,7 +124,7 @@ public class Render2D extends RenderBase
         getRenderer().addVertex(start.xCoord + width, start.yCoord, 0);
         getTessellator().draw();
 
-        GlStateManager.enableTextureStates();
+        GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
     }
@@ -139,7 +139,7 @@ public class Render2D extends RenderBase
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GlStateManager.enableTextureStates();
+        GlStateManager.enableTexture2D();
 
         GlStateManager.scale(0.5f, 0.5f, 0.5f);
 
