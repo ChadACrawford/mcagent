@@ -116,7 +116,7 @@ public class MoveShort extends Move {
                     stage = 1;
                     BlockPos bc = path.getFirst();
                     for (BlockPos b2 : path) {
-                        if (WorldTools.isValidPath(w, p.getPosition(), b2)) {
+                        if (WorldTools.isValidPath(w, p.getPositionVector(), new Vec3(bc.getX()+0.5,bc.getY()+1,bc.getZ()+0.5))) {
                             bc = b2;
                         } else break;
                     }

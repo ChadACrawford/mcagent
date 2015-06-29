@@ -125,7 +125,7 @@ public class WorldTools {
         double atX = from.xCoord, atZ = from.zCoord;
         for(int i = 1; i <= 5*(d+1); i++) {
             atX += dx; atZ += dz;
-            //BlockPos b2 = getAccessibleBlock(w, b1, atX, atZ);
+            BlockPos b1 = new BlockPos(atX, from.yCoord, atZ);
             BlockPos b2 = new BlockPos(atX, from.yCoord, atZ);
             if(b2 == null) {
                 return false;
