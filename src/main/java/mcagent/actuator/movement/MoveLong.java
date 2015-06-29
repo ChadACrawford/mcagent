@@ -17,24 +17,33 @@ public class MoveLong extends Move {
     public MoveLong(double toX, double toY, double toZ) {
         super(toX, toY, toZ);
         EntityPlayerSP p = Minecraft.getMinecraft().thePlayer;
-        from = new BlockPos(p.getPosition());
-        to = new BlockPos(toX,toY,toZ);
-        status = ControllerStatus.BUSY;
+        from = getPosition();
+        to = new BlockPos(toX, toY, toZ);
+        status = ControllerStatus.WAITING;
     }
 
     private LinkedList<Target> path;
     private MoveShort current;
+    int stage = 1;
     @Override
     public void move() {
-        if(path == null) return;
-        if(path.isEmpty()) {
+        if(path == null) {
+            status = ControllerStatus.FAILURE;
+        }
+        if(path.isEmpty() && current.getStatus() == ControllerStatus.FINISHED && stage == 3) {
             status = ControllerStatus.FINISHED;
         }
-        else if(current == null || current.getStatus() == ControllerStatus.FINISHED) {
-            current = new MoveShort(path.getFirst().getBlock());
+        else if(current.getStatus() == ControllerStatus.FINISHED && path.isEmpty()) {
+            stage = 3;
+            current = new MoveShort(toX,toY,toZ);
             current.calculate();
         }
-        else if(current.status == ControllerStatus.BUSY || current.status == ControllerStatus.WAITING) {
+        else if((current == null || current.getStatus() == ControllerStatus.FINISHED) && !path.isEmpty()) {
+            stage = 2;
+            current = new MoveShort(path.poll().getBlock());
+            current.calculate();
+        }
+        else if(current != null && current.getStatus() == ControllerStatus.WAITING) {
             current.move();
         }
         else {
@@ -46,8 +55,19 @@ public class MoveLong extends Move {
     @Override
     public boolean calculate() {
         WorldGrid wg = WorldGrid.getInstance();
-        Target t1 = wg.getNearestTarget(from);
-        final Target t2 = wg.getNearestTarget(to);
+        LinkedList<Target> fromPool = new LinkedList<Target>(wg.getNearestTargets(from, 10));
+        LinkedList<Target> toPool = new LinkedList<Target>(wg.getNearestTargets(to, 10));
+        Target t1 = null;
+        Target t2temp = null;
+        while(!fromPool.isEmpty() && !MoveShort.pathExists(from,(t1 = fromPool.poll()).getBlock()));
+        while(!toPool.isEmpty() && !MoveShort.pathExists(to,(t2temp = toPool.poll()).getBlock()));
+        final Target t2 = t2temp;
+        if(t1 == null) {
+            System.out.println("FAILURE: Unable to find acceptable starting point.");
+            status = ControllerStatus.FAILURE;
+            return false;
+        }
+
         class Tuple implements Comparable<Tuple> {
             double h; LinkedList<Target> path;
             public Tuple(LinkedList<Target> path) {
@@ -60,6 +80,7 @@ public class MoveLong extends Move {
                 return this.h<o.h ? -1:1;
             }
         }
+
         PriorityQueue<Tuple> pool = new PriorityQueue<Tuple>();
         HashSet<Target> hist = new HashSet<Target>();
         LinkedList<Target> path = new LinkedList<Target>(); path.add(t1);
@@ -67,7 +88,8 @@ public class MoveLong extends Move {
 
 Loop1:  while(true) {
             if(pool.isEmpty()) {
-                //System.out.println("No valid target path found.");
+                System.out.format("No valid target path found to target %s with %d neighbors.\n", t2.getBlock(), t2.getNeighbors().size());
+                status = ControllerStatus.FAILURE;
                 return false;
             }
             Tuple t = pool.poll();
@@ -89,7 +111,7 @@ Loop1:  while(true) {
             }
         }
         this.path = path;
-        current = new MoveShort(path.getFirst().getBlock());
+        current = new MoveShort(path.poll().getBlock());
         current.calculate();
         return true;
     }
@@ -98,6 +120,7 @@ Loop1:  while(true) {
     public Vec3 getCurrentGoal() {
         //Target t = path.getFirst();
         //return new Vec3(t.getX(), t.getY(), t.getZ());
+        if(current == null) return null;
         return current.getCurrentGoal();
     }
 }

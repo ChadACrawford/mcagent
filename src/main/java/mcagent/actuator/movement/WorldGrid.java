@@ -1,5 +1,7 @@
 package mcagent.actuator.movement;
 
+import edu.wlu.cs.levy.CG.KeyDuplicateException;
+import edu.wlu.cs.levy.CG.KeySizeException;
 import mcagent.Debugger;
 import mcagent.MCAgent;
 import mcagent.actuator.PlayerController;
@@ -14,13 +16,11 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
-import mcagent.util.KDTree;
+import edu.wlu.cs.levy.CG.KDTree;
 import mcagent.util.WorldTools;
+import scala.collection.parallel.ParIterableLike;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Chad on 5/25/2015.
@@ -50,25 +50,50 @@ public class WorldGrid {
 
 
     public Target getNearestTarget(BlockPos p) {
-        return getNearestTarget(p.getX(), p.getY(), p.getZ());
+        return getNearestTarget(new double[] {p.getX(), p.getY(), p.getZ()});
     }
     public Target getNearestTarget(double x, double y, double z) {
-        return tree.nearest(new double[] {x,y,z}).payload;
+        return getNearestTarget(new double[] {x,y,z});
+    }
+    public Target getNearestTarget(double[] l) {
+        try {
+            //System.out.format("Searching near: %6.4f %6.4f %6.4f\n",l[0],l[1],l[2]);
+            return tree.nearest(l);
+        } catch (KeySizeException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     public List<Target> getNearestTargets(BlockPos p, int k) {
-        return getNearestTargets(p.getX(), p.getY(), p.getZ(), k);
+        return getNearestTargets(new double[]{p.getX(), p.getY(), p.getZ()}, k);
     }
     public List<Target> getNearestTargets(double x, double y, double z, int k) {
-        ArrayList<KDTree.SearchResult<Target>> results = tree.nearestNeighbours(new double[] {x,y,z}, k);
-        LinkedList<Target> rets = new LinkedList<Target>();
-        for(KDTree.SearchResult<Target> t: results) {
-            rets.add(t.payload);
+//        ArrayList<KDTree.SearchResult<Target>> results = tree.nearestNeighbours(new double[] {x,y,z}, k);
+//        LinkedList<Target> rets = new LinkedList<Target>();
+//        for(KDTree.SearchResult<Target> t: results) {
+//            rets.add(t.payload);
+//        }
+//        return rets;
+        return getNearestTargets(new double[] {x,y,z}, k);
+    }
+    public List<Target> getNearestTargets(double[] l, int k) {
+        try {
+            return tree.nearest(l, k);
+        } catch (KeySizeException e) {
+            e.printStackTrace();
+            return null;
         }
-        return rets;
     }
 
     private Target addTarget(Target t) {
-        tree.addPoint(t.coords(), t);
+        try {
+            tree.insert(t.coords(), t);
+        } catch (KeySizeException e) {
+            e.printStackTrace();
+        } catch (KeyDuplicateException e) {
+            e.printStackTrace();
+            return null;
+        }
         list.add(t);
         return t;
     }
@@ -86,8 +111,25 @@ public class WorldGrid {
             debug.debugBlock(this, t.getBlock(), Block.getStateById(89));
         }
     }
+
+//    HashSet<Target> targets;
+//    long lastSearchTime = 0;
     public void drawEdges(Render3D render) {
         if(list == null || list.isEmpty()) return;
+        //This is for checking where I can go from a certain point.
+//        Target t = getNearestTarget(Minecraft.getMinecraft().thePlayer.getPosition());
+//        if(targets == null || !targets.contains(t) && Minecraft.getSystemTime() > lastSearchTime + 1000) {
+//            targets = new HashSet<Target>();
+//            lastSearchTime = Minecraft.getSystemTime();
+//            HashSet<Target> toSearch = new HashSet<Target>(); toSearch.add(t);
+//            while(!toSearch.isEmpty()) {
+//                Target t2 = toSearch.iterator().next();
+//                targets.add(t2);
+//                for(Target t3: t2.getNeighbors()) if(!targets.contains(t3)) toSearch.add(t3);
+//                toSearch.remove(t2);
+//            }
+//        }
+
         for(Target t1: list) {
             for(Target t2: t1.getNeighbors()) {
                 Vec3 v1 = new Vec3(t1.getX()+0.5,t1.getY()+0.5,t1.getZ()+0.5), v2 = new Vec3(t2.getX()+0.5,t2.getY()+0.5,t2.getZ()+0.5);
@@ -127,11 +169,11 @@ public class WorldGrid {
 
         //calculate neighbors (probably will be a lengthy computation)
         for(Target t: list) {
-            ArrayList<KDTree.SearchResult<Target>> results =  tree.nearestNeighbours(t.coords(), MAX_NEIGHBORS);
-            for(KDTree.SearchResult<Target> s: results) {
-                if(s.distance < MAX_DISTANCE && t != s.payload
-                        && MoveShort.pathExists(t.getBlock(), s.payload.getBlock())) {
-                    t.getNeighbors().add(s.payload);
+            List<Target> results =  getNearestTargets(t.coords(), MAX_NEIGHBORS);
+            for(Target s: results) {
+                if(WorldTools.distance(s.coords(),t.coords()) < MAX_DISTANCE && t != s
+                        && MoveShort.pathExists(t.getBlock(), s.getBlock())) {
+                    t.getNeighbors().add(s);
                 }
             }
         }
@@ -169,7 +211,8 @@ public class WorldGrid {
                 if(n == null || !inRange(n.getX(),n.getZ()) || !WorldTools.open(w,n,2)  || WorldTools.open(w, n, w.getHeight())) continue;
                 Tuple tu = new Tuple();
                 Target t = new Target(n,true);
-                double d = tree.nearest(t.coords()).distance;
+                //double d = tree.nearest(t.coords()).distance;
+                double d = WorldTools.distance(getNearestTarget(t.coords()).coords(), t.coords());
                 if(d < MAX_DISTANCE/2) continue;
                 tu.t = t; tu.d = d;
                 targets.add(tu);
@@ -187,7 +230,8 @@ public class WorldGrid {
             addTarget(tu.t);
             targets.remove(tu);
             for(Tuple tu2: targets) {
-                double d = tree.nearest(tu2.t.coords()).distance;
+                //double d = tree.nearest(tu2.t.coords()).distance;
+                double d = WorldTools.distance(getNearestTarget(tu2.t.coords()).coords(),tu2.t.coords());
                 tu2.d = d;
             }
         }
@@ -198,7 +242,8 @@ public class WorldGrid {
     }
 
     public void reset() {
-        tree = new KDTree.Euclidean<Target>(3);
+        Debugger.getInstance().reset(this);
+        tree = new KDTree<Target>(3);
         list = new LinkedList<Target>();
     }
 }

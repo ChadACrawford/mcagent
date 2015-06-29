@@ -15,6 +15,7 @@ public class ActionMove extends PlayerControllerAction {
     private Move move;
 
     public ActionMove(double moveX, double moveY, double moveZ) {
+        super();
         this.moveX = moveX;
         this.moveY = moveY;
         this.moveZ = moveZ;
@@ -28,10 +29,7 @@ public class ActionMove extends PlayerControllerAction {
         else
             this.move = new MoveVeryLong(moveX, moveY, moveZ);
 
-        if(move.calculate())
-            this.status = ControllerStatus.BUSY;
-        else {
-            //System.out.println("Failed to find path to goal");
+        if(!move.calculate()) {
             this.status = ControllerStatus.FAILURE;
         }
     }
@@ -39,6 +37,7 @@ public class ActionMove extends PlayerControllerAction {
     @Override
     public void performAction() {
         move.act();
+        status = move.getStatus();
     }
 
     public Vec3 getCurrentGoal() {

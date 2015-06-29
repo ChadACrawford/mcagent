@@ -11,15 +11,13 @@ public class ActionAttack extends PlayerControllerAction {
     protected ActionMoveLook mlAction;
 
     public ActionAttack(double atX, double atY, double atZ) {
+        super();
         this.atX = atX;
         this.atY = atY;
         this.atZ = atZ;
         mlAction = new ActionMoveLook(atX,atY,atZ);
         if(mlAction.getStatus() == ControllerStatus.FAILURE) {
             this.status = ControllerStatus.FAILURE;
-        }
-        else {
-            this.status = ControllerStatus.BUSY;
         }
     }
 

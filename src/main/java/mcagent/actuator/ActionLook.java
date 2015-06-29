@@ -12,6 +12,7 @@ public class ActionLook extends PlayerControllerAction {
     private double lookX, lookY, lookZ;
 
     public ActionLook(double lookX, double lookY, double lookZ) {
+        super();
         this.lookX = lookX;
         this.lookY = lookY;
         this.lookZ = lookZ;

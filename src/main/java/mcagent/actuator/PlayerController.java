@@ -7,6 +7,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import scala.util.control.TailCalls;
 
 import java.util.LinkedList;
 
@@ -75,7 +76,7 @@ public class PlayerController implements Controller {
         unpressAll();
 
         for(PlayerControllerAction action: currentActions) {
-            action.act();
+            if(action.getStatus() == ControllerStatus.WAITING) action.act();
             if(action.getStatus() == ControllerStatus.FINISHED || action.getStatus() == ControllerStatus.FAILURE) {
                 System.out.println("Finished action " + action);
                 currentActions.remove(action);

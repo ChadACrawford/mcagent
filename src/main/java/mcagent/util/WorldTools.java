@@ -26,10 +26,14 @@ public class WorldTools {
     public static double distance(Vec3 v1, Vec3 v2) {
         return Math.sqrt(Math.pow(v1.xCoord-v2.xCoord,2)+Math.pow(v1.yCoord-v2.yCoord,2)+Math.pow(v1.zCoord-v2.zCoord,2));
     }
+    public static double distance(double[] x1, double[] x2) {
+        double dx = x1[0]-x2[0], dy = x1[1]-x2[1], dz = x1[2]-x2[2];
+        return Math.sqrt(dx*dx+dy*dy+dz*dz);
+    }
 
     public static boolean open(World w, BlockPos p, int d) {
         for(int i = 1; i <= d && p.getY()+i<w.getHeight(); i++) {
-            if(!w.isAirBlock(p.add(0,i,0))) return false;
+            if(isSolid(w,p.add(0,i,0))) return false;
         }
         return true;
     }
@@ -112,17 +116,17 @@ public class WorldTools {
         return true;
     }
 
-    public static boolean isValidPath(World w, BlockPos from, BlockPos to) {
-        if(from.getY() != to.getY()) return false;
-        double d = Math.sqrt(Math.pow(from.getX()-to.getX(),2)+Math.pow(from.getZ()-to.getZ(),2));
+    public static boolean isValidPath(World w, Vec3 from, Vec3 to) {
+        if(Math.abs(from.yCoord - to.yCoord) < 0.1) return false;
+        double d = Math.sqrt(Math.pow(from.xCoord-to.xCoord,2)+Math.pow(from.zCoord-to.zCoord,2));
         if(d < 1.0) return true;
-        double dx = (to.getX()-from.getX())/d/5, dz = (to.getZ()-from.getZ())/d/5;
-        BlockPos b1 = from;
-        double atX = b1.getX(), atZ = b1.getZ();
+        double dx = (to.xCoord-from.xCoord)/d/5, dz = (to.zCoord-from.zCoord)/d/5;
+        //BlockPos b1 = from;
+        double atX = from.xCoord, atZ = from.zCoord;
         for(int i = 1; i <= 5*(d+1); i++) {
             atX += dx; atZ += dz;
             //BlockPos b2 = getAccessibleBlock(w, b1, atX, atZ);
-            BlockPos b2 = new BlockPos(atX, b1.getY(), atZ);
+            BlockPos b2 = new BlockPos(atX, from.yCoord, atZ);
             if(b2 == null) {
                 return false;
             }

@@ -1,8 +1,11 @@
 package mcagent;
 import mcagent.actuator.PlayerController;
+import mcagent.actuator.movement.Move;
 import mcagent.actuator.movement.WorldGrid;
+import mcagent.util.WorldTools;
 import mcagent.util.render.Render3D;
 import mcagent.util.render.RenderBase;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.Tessellator;
@@ -20,6 +23,8 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
+
+import java.util.concurrent.Semaphore;
 
 
 /**
@@ -44,7 +49,7 @@ public class MCAgent {
         MinecraftForge.EVENT_BUS.register(mc);
     }
 
-    boolean init = false, busy=false;
+    boolean init = false, drawing=false, moving = false;
     long start = 0;
     @SubscribeEvent
     public void onPlayerUpdate(TickEvent.PlayerTickEvent e) {
@@ -53,17 +58,21 @@ public class MCAgent {
         if(start == 0) {
             start = Minecraft.getMinecraft().getSystemTime();
         }
-        else if(!init && !busy && Minecraft.getMinecraft().getSystemTime()>start+4000) {
-            busy = true;
+        else if(!init && Minecraft.getMinecraft().getSystemTime()>start+4000) {
+            init = true;
+            drawing = true;
             System.out.println("Searching...");
             WorldGrid.getInstance().explore(p.getPosition().getX(), p.getPosition().getY(), p.getPosition().getZ());
             WorldGrid.getInstance().debugTargets();
-            PlayerController pc = PlayerController.getInstance();
-            pc.moveTo(5000,100,5000,true);
             System.out.println("Finished!");
-            init = true;
+            drawing = false;
         }
-        else if(init) {
+        else if(init && !drawing && !moving) {
+            PlayerController pc = PlayerController.getInstance();
+            pc.moveTo(5000, 100,5000,true);
+            moving = true;
+        }
+        else if(init && moving) {
             PlayerController pc = PlayerController.getInstance();
             pc.act();
         }
@@ -71,7 +80,7 @@ public class MCAgent {
 
     @SubscribeEvent
     public void renderWorldLastEvent(RenderWorldLastEvent event) {
-        if(init) {
+        /*if(init && !drawing) {
             RenderBase.EnableDrawingMode();
             WorldGrid wg = WorldGrid.getInstance();
             Render3D render = new Render3D();
@@ -81,6 +90,6 @@ public class MCAgent {
             RenderBase.DisableDrawingMode();
             //System.out.println("FUCK IT ALL");
             //t.draw();
-        }
+        }*/
     }
 }

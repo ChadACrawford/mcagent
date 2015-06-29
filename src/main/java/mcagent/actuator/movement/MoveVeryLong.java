@@ -1,6 +1,7 @@
 package mcagent.actuator.movement;
 
 import mcagent.ControllerStatus;
+import mcagent.util.WorldTools;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.BlockPos;
@@ -20,11 +21,16 @@ public class MoveVeryLong extends Move {
     MoveLong current;
     @Override
     public void move() {
-        if(current == null || current.getStatus() == ControllerStatus.FAILURE || current.getStatus() == ControllerStatus.FINISHED) {
+        if(current == null || current.getStatus() == ControllerStatus.FINISHED) {
+            System.out.println("Finding next long-distance target...");
             current = findNextAvailableTarget();
+            System.out.println("Finished search.");
             if(current == null) this.status = ControllerStatus.FAILURE;
         }
-        else if(current.status == ControllerStatus.BUSY) {
+        else if(current.getStatus() == ControllerStatus.FAILURE) {
+            status = ControllerStatus.FAILURE;
+        }
+        else if(current.status == ControllerStatus.WAITING) {
             current.move();
         }
     }
@@ -39,7 +45,12 @@ public class MoveVeryLong extends Move {
         World w = Minecraft.getMinecraft().theWorld;
         WorldGrid wg = WorldGrid.getInstance();
         wg.explore(p.getPosition());
-        List<Target> targets = wg.getNearestTargets(toX, w.getHeight(), toZ, 10);
+        List<Target> targets = null;
+        if(WorldTools.distance(p.getPositionVector(), new Vec3(toX,toY,toZ)) < WorldGrid.SURFACE_GRID_SIZE) {
+            targets = wg.getNearestTargets(toX, toY, toZ, 10);
+        } else {
+            targets = wg.getNearestTargets(toX, w.getHeight(), toZ, 10);
+        }
         for(Target t: targets) {
             MoveLong m = new MoveLong(t.getX(), t.getY(), t.getZ());
             if(m.calculate()) {
@@ -51,6 +62,7 @@ public class MoveVeryLong extends Move {
 
     @Override
     public Vec3 getCurrentGoal() {
+        if(current == null) return null;
         return current.getCurrentGoal();
     }
 }

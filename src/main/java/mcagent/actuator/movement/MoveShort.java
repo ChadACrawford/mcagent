@@ -10,6 +10,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import mcagent.util.WorldTools;
+import net.minecraftforge.event.world.NoteBlockEvent;
 
 import java.util.*;
 
@@ -22,10 +23,11 @@ public class MoveShort extends Move {
     BlockPos to = null;
     BlockPos from = null;
 
+    boolean verbose = true;
     public MoveShort(double toX, double toY, double toZ) {
         super(toX, toY, toZ);
         EntityPlayerSP player = PlayerController.getInstance().getPlayer();
-        this.from = new BlockPos(player.getPosition()).add(0,-1,0);
+        this.from = new BlockPos(player.getPosition()).add(0,0,0);
         this.to = new BlockPos(toX,toY,toZ);
     }
     public MoveShort(BlockPos from, BlockPos to) {
@@ -35,50 +37,107 @@ public class MoveShort extends Move {
     }
     public MoveShort(BlockPos to) {
         super(to.getX(), to.getY(), to.getZ());
-        EntityPlayerSP player = PlayerController.getInstance().getPlayer();
-        this.from = new BlockPos(player.getPosition()).add(0,-1,0);
+        World w = Minecraft.getMinecraft().theWorld;
+        this.from = WorldTools.findBelowSurfaceBlock(w, getPosition());
         this.to = new BlockPos(to);
+        this.status = ControllerStatus.WAITING;
+    }
+    public MoveShort(BlockPos from, BlockPos to, boolean verbose) {
+        super(to.getX(), to.getY(), to.getZ());
+        this.from = new BlockPos(from);
+        this.to = new BlockPos(to);
+        this.verbose = verbose;
     }
 
-    BlockPos c = null;
+    Vec3 c = null;
+    int stage = 0;
     @Override
     public void move() {
+//        Debugger debug = Debugger.getInstance();
+//        PlayerController pc = PlayerController.getInstance();
+//        EntityPlayerSP player = pc.getPlayer();
+//        World w = pc.getWorld();
+//            BlockPos ppos = player.getPosition();
+//            if(c == null) c = path.getFirst();
+//            Vec3 loc = new Vec3(c.getX() + 0.5, c.getY() + 1, c.getZ() + 0.5);
+//            if(verbose) System.out.println(player.getPositionVector().distanceTo(new Vec3(loc.xCoord, loc.yCoord, loc.zCoord)));
+//            if (player.getPositionVector().distanceTo(new Vec3(loc.xCoord, loc.yCoord, loc.zCoord)) < 0.5) {
+//                while (!path.removeFirst().equals(c)) ;
+//                setDelay(10);
+//                //pc.stopMoving();
+//                //to = null;
+//                if (!path.isEmpty()) {
+//                    c = path.getFirst();
+//                    for (BlockPos p : path) {
+//                        if (WorldTools.isValidPath(w, ppos, p)) {
+//                            c = p;
+//                        } else break;
+//                    }
+//                    //System.out.format("from: %s | to: %s | g: %s\n", ppos, c, path.getLast());
+//                    debug.debugBlock(this, c, Block.getStateById(138));
+//                    loc = new Vec3(c.getX() + 0.5, c.getY() + 1, c.getZ() + 0.5);
+//                } else {
+//                    if (player.getPositionVector().distanceTo(new Vec3(toX, toY + 1, toZ)) < 0.5) {
+//                        debug.reset(this);
+//                        status = ControllerStatus.FINISHED;
+//                        if (verbose) System.out.println("Finished!");
+//                        return;
+//                    } else {
+//                        loc = new Vec3(toX, toY, toZ);
+//                        //moveTo(toX,toY,toZ);
+//                    }
+//                }
+//            }
+//            //Vec3 loc = new Vec3(to.getX() + 0.5, to.getY() + 1, to.getZ() + 0.5);
+//            moveTo(loc.xCoord, loc.yCoord, loc.zCoord);
+//        }
         Debugger debug = Debugger.getInstance();
-        PlayerController pc = PlayerController.getInstance();
-        EntityPlayerSP player = pc.getPlayer();
-        World w = pc.getWorld();
-        if(path.isEmpty()) {
-            if(player.getPositionVector().distanceTo(new Vec3(toX,toY+1,toZ)) < 0.5) {
-                debug.reset(this);
-                status = ControllerStatus.FINISHED;
-                System.out.println("Finished!");
-                return;
-            }
-            else {
-                moveTo(toX,toY,toZ);
-            }
+        EntityPlayerSP p = Minecraft.getMinecraft().thePlayer;
+        World w = Minecraft.getMinecraft().theWorld;
+        if(isDelayed()) {
+            //do nothing
         }
-        else {
-            BlockPos ppos = player.getPosition();
-            if(c == null) c = path.getFirst();
-            Vec3 loc = new Vec3(c.getX() + 0.5, c.getY() + 1, c.getZ() + 0.5);
-            System.out.println(player.getPositionVector().distanceTo(new Vec3(loc.xCoord, loc.yCoord+1, loc.zCoord)));
-            if (player.getPositionVector().distanceTo(new Vec3(loc.xCoord, loc.yCoord+1, loc.zCoord)) < 0.5) {
-                while (!path.removeFirst().equals(c));
+        else if(status == ControllerStatus.FAILURE) {
+            //do nothing
+        }
+        else if(c == null || stage == 0) {
+            stage = 1;
+            BlockPos bc = path.getFirst();
+            c = new Vec3(bc.getX()+0.5, bc.getY()+1, bc.getZ()+0.5);
+        }
+        else if(p.getPositionVector().distanceTo(c) < 0.5) {
+            //if(verbose) System.out.println(p.getPositionVector().distanceTo(c));
+            //System.out.format("from: %s | to: %s | g: %s\n", from, c, path.getLast());
+            if(stage == 1) {
+                BlockPos b1 = new BlockPos(c.xCoord, c.yCoord-1, c.zCoord);
+                while (!path.removeFirst().equals(b1)) ;
                 setDelay(10);
-                //pc.stopMoving();
-                //to = null;
-                for (BlockPos p : path) {
-                    if (WorldTools.isValidPath(w, ppos, p)) {
-                        c = p;
-                    } else break;
+                if (!path.isEmpty()) {
+                    stage = 1;
+                    BlockPos bc = path.getFirst();
+                    for (BlockPos b2 : path) {
+                        if (WorldTools.isValidPath(w, p.getPosition(), b2)) {
+                            bc = b2;
+                        } else break;
+                    }
+
+                    debug.debugBlock(this, bc, Block.getStateById(138));
+                    c = new Vec3(bc.getX()+0.5, bc.getY()+1, bc.getZ()+0.5);
+                } else {
+                    stage = 2;
+                    c = new Vec3(toX, toY+1, toZ);
                 }
-                System.out.format("from: %s | to: %s | g: %s\n", ppos, c, path.getLast());
-                debug.debugBlock(this, c, Block.getStateById(138));
-                loc = new Vec3(c.getX() + 0.5, c.getY() + 1, c.getZ() + 0.5);
             }
-            //Vec3 loc = new Vec3(to.getX() + 0.5, to.getY() + 1, to.getZ() + 0.5);
-            moveTo(loc.xCoord, loc.yCoord, loc.zCoord);
+            else if(stage == 2) {
+                stage = 3;
+                System.out.println("Finished!");
+                status = ControllerStatus.FINISHED;
+            }
+        } else if(stage == 1 || stage == 2) {
+            //if(verbose) System.out.println(p.getPositionVector().distanceTo(c));
+            moveTo(c.xCoord, c.yCoord, c.zCoord);
+        } else if(stage == 3) {
+            //do nothing
         }
     }
 
@@ -101,7 +160,7 @@ public class MoveShort extends Move {
 //
         if(angle > 10 && angle < 160) pc.left();
         else if(angle > 180 && angle < 350) pc.right();
-        if(p.isInWater() || WorldTools.isBlocked(w, p.getPosition(), new BlockPos(x,y,z), 1)) pc.jump();
+        if(p.isInWater() || WorldTools.isBlocked(w, getPosition(), new BlockPos(x,y,z), 1)) pc.jump();
     }
 
     private long delay;
@@ -113,6 +172,9 @@ public class MoveShort extends Move {
     }
 
     public boolean calculate() {
+        if(verbose) {
+            System.out.println("Searching");
+        }
         //PlayerController pc = PlayerController.getInstance();
         //EntityPlayerSP p = Minecraft.getMinecraft().thePlayer;
         World w = Minecraft.getMinecraft().theWorld;
@@ -155,11 +217,13 @@ public class MoveShort extends Move {
         };
 
         int T = 0;
-
+        //System.out.format("from: %s to: %s", from, to);
 Loop1:
         while(true) {
             T++;
             if(pool.isEmpty() || T > WorldGrid.MAX_DISTANCE*WorldGrid.MAX_DISTANCE/4) {
+                if(verbose) System.out.println(String.format("FAILURE: no valid path from %s to %s.", from, to));
+                status = ControllerStatus.FAILURE;
                 return false;
             }
             Tuple t = pool.poll();
@@ -192,12 +256,12 @@ Loop1:
     }
 
     public static boolean pathExists(BlockPos from, BlockPos to) {
-        return new MoveShort(from, to).calculate();
+        return new MoveShort(from, to, false).calculate();
     }
 
     @Override
     public Vec3 getCurrentGoal() {
-        Vec3 loc = new Vec3(to.getX()+0.5,to.getY()+1,to.getZ()+0.5);
-        return loc;
+        if(c == null) return null;
+        else return new Vec3(c.xCoord,c.yCoord,c.zCoord);
     }
 }

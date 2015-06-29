@@ -406,6 +406,9 @@ public abstract class KDTree<T>{
         int search(double[] searchLocation, PrioQueue<T> results){
             int updated = 0;
             for(int j = entries; j-- > 0;){
+                if(entries > pointPayloads.size()) {
+                    System.out.println("error");
+                }
                 double distance = pointDist(pointLocations.array,searchLocation,j);
                 if(results.peekPrio() > distance){
                     updated++;
@@ -434,7 +437,7 @@ public abstract class KDTree<T>{
         }
 
         void expandBounds(double[] location){
-            entries++;
+            //entries++;
             int mio = index*2*_dimensions;
             for(int i = 0; i < _dimensions;i++){
                 nodeMinMaxBounds.array[mio] = Math.min(nodeMinMaxBounds.array[mio++],location[i]);
@@ -443,6 +446,7 @@ public abstract class KDTree<T>{
         }
 
         int add(double[] location, T load){
+            entries++;
             pointLocations.add(location);
             pointPayloads.add(load);
             return entries;
