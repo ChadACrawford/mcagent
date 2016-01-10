@@ -2,6 +2,7 @@ package mcagent.actuator.movement;
 
 import edu.wlu.cs.levy.CG.KeyDuplicateException;
 import edu.wlu.cs.levy.CG.KeySizeException;
+import mcagent.DebugObject;
 import mcagent.Debugger;
 import mcagent.MCAgent;
 import mcagent.actuator.PlayerController;
@@ -31,6 +32,7 @@ public class WorldGrid {
     public static final double MAX_DISTANCE = 20.0;
     public static final int SURFACE_GRID_SIZE = 10;
     public static final int SURFACE_SEARCH_SIZE = 60;
+    private Debugger debug = new Debugger(this);
 
     private static WorldGrid instance = null;
 
@@ -106,9 +108,8 @@ public class WorldGrid {
     }
 
     public void debugTargets() {
-        Debugger debug = Debugger.getInstance();
         for(Target t: list) {
-            debug.debugBlock(this, t.getBlock(), Block.getStateById(89));
+            debug.debugBlock(t.getBlock(), Block.getStateById(89));
         }
     }
 
@@ -154,9 +155,9 @@ public class WorldGrid {
         targets.add(new Target(centerX, y, centerZ, !WorldTools.open(w, new BlockPos(centerX, y, centerZ), w.getHeight())));
         for(int x = centerX-SURFACE_SEARCH_SIZE; x <= centerX+SURFACE_SEARCH_SIZE; x+=SURFACE_GRID_SIZE) {
             for(int z = centerZ-SURFACE_SEARCH_SIZE; z <= centerZ+SURFACE_SEARCH_SIZE; z+=SURFACE_GRID_SIZE) {
-                //System.out.println(x + ", " + z);
-                BlockPos p = new BlockPos(x,w.getHeight(),z);
-                p = WorldTools.findGroundBlock(w, p);
+//                BlockPos p = new BlockPos(x,w.getHeight(),z);
+//                p = WorldTools.findGroundBlock(w, p);
+                BlockPos p = WorldTools.findBelowSurfaceBlock(w, new BlockPos(x, w.getHeight()+1, z));
                 Target t = addTarget(p, false);
                 targets.add(t);
                 //exploreCaves(t);
@@ -242,8 +243,13 @@ public class WorldGrid {
     }
 
     public void reset() {
-        Debugger.getInstance().reset(this);
+        debug.reset();
         tree = new KDTree<Target>(3);
         list = new LinkedList<Target>();
+    }
+
+    @Override
+    public String toString() {
+        return "WorldGrid";
     }
 }

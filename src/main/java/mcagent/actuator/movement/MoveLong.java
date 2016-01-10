@@ -1,6 +1,7 @@
 package mcagent.actuator.movement;
 
 import mcagent.ControllerStatus;
+import mcagent.Debugger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.BlockPos;
@@ -24,6 +25,7 @@ public class MoveLong extends Move {
 
     private LinkedList<Target> path;
     private MoveShort current;
+    private Debugger debug = new Debugger(this);
     int stage = 1;
     @Override
     public void move() {
@@ -40,7 +42,7 @@ public class MoveLong extends Move {
         }
         else if((current == null || current.getStatus() == ControllerStatus.FINISHED) && !path.isEmpty()) {
             stage = 2;
-            current = new MoveShort(path.poll().getBlock());
+            current = new MoveShort(path.poll().getBlock().add(0,0,0));
             current.calculate();
         }
         else if(current != null && current.getStatus() == ControllerStatus.WAITING) {
@@ -63,7 +65,7 @@ public class MoveLong extends Move {
         while(!toPool.isEmpty() && !MoveShort.pathExists(to,(t2temp = toPool.poll()).getBlock()));
         final Target t2 = t2temp;
         if(t1 == null) {
-            System.out.println("FAILURE: Unable to find acceptable starting point.");
+            debug.info("FAILURE: Unable to find acceptable starting point.");
             status = ControllerStatus.FAILURE;
             return false;
         }
@@ -88,7 +90,7 @@ public class MoveLong extends Move {
 
 Loop1:  while(true) {
             if(pool.isEmpty()) {
-                System.out.format("No valid target path found to target %s with %d neighbors.\n", t2.getBlock(), t2.getNeighbors().size());
+                debug.errorf("No valid target path found to target %s with %d neighbors.", t2.getBlock(), t2.getNeighbors().size());
                 status = ControllerStatus.FAILURE;
                 return false;
             }
@@ -122,5 +124,10 @@ Loop1:  while(true) {
         //return new Vec3(t.getX(), t.getY(), t.getZ());
         if(current == null) return null;
         return current.getCurrentGoal();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("MoveLong{f=(%d,%d,%d), t=(%d,%d,%d)}", from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ());
     }
 }

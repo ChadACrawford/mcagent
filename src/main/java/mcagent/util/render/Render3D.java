@@ -150,6 +150,7 @@ public class Render3D extends RenderBase
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GlStateManager.color(1.f, 1.f, 1.f, 1.f);
+
         GlStateManager.popMatrix();
     }
 

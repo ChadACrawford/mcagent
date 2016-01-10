@@ -1,6 +1,7 @@
 package mcagent.actuator.movement;
 
 import mcagent.ControllerStatus;
+import mcagent.Debugger;
 import mcagent.util.WorldTools;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -19,12 +20,14 @@ public class MoveVeryLong extends Move {
     }
 
     MoveLong current;
+
+    private Debugger debug = new Debugger(this);
     @Override
     public void move() {
         if(current == null || current.getStatus() == ControllerStatus.FINISHED) {
-            System.out.println("Finding next long-distance target...");
+            debug.info("Finding next long-distance target...");
             current = findNextAvailableTarget();
-            System.out.println("Finished search.");
+            debug.info("Finished search.");
             if(current == null) this.status = ControllerStatus.FAILURE;
         }
         else if(current.getStatus() == ControllerStatus.FAILURE) {
@@ -45,11 +48,11 @@ public class MoveVeryLong extends Move {
         World w = Minecraft.getMinecraft().theWorld;
         WorldGrid wg = WorldGrid.getInstance();
         wg.explore(p.getPosition());
-        List<Target> targets = null;
+        List<Target> targets;
         if(WorldTools.distance(p.getPositionVector(), new Vec3(toX,toY,toZ)) < WorldGrid.SURFACE_GRID_SIZE) {
-            targets = wg.getNearestTargets(toX, toY, toZ, 10);
+            targets = wg.getNearestTargets(toX, toY, toZ, 20);
         } else {
-            targets = wg.getNearestTargets(toX, w.getHeight(), toZ, 10);
+            targets = wg.getNearestTargets(toX, w.getHeight(), toZ, 20);
         }
         for(Target t: targets) {
             MoveLong m = new MoveLong(t.getX(), t.getY(), t.getZ());
@@ -64,5 +67,10 @@ public class MoveVeryLong extends Move {
     public Vec3 getCurrentGoal() {
         if(current == null) return null;
         return current.getCurrentGoal();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("MoveVeryLong{t=(%.2f,%.2f)}", toX, toZ);
     }
 }
