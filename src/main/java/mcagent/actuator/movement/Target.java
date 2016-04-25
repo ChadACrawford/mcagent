@@ -2,6 +2,7 @@ package mcagent.actuator.movement;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.Vec3;
 
 import java.util.LinkedList;
 
@@ -51,6 +52,7 @@ public class Target {
         return new double[] {x,y,z};
     }
     public BlockPos getBlock() { return block; }
+    public Vec3 getVector() { return new Vec3(block.getX()+0.5, block.getY(), block.getZ()); }
     public boolean isCave() {
         return isCave;
     }

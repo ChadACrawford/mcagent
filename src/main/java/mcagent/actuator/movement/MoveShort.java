@@ -18,35 +18,35 @@ import java.util.*;
  * Created by Chad on 5/25/2015.
  */
 public class MoveShort extends Move {
-    LinkedList<BlockPos> path;
+    LinkedList<Vec3> path;
 
-    BlockPos to = null;
-    BlockPos from = null;
+    Vec3 to = null;
+    Vec3 from = null;
 
     Debugger debug = new Debugger(this);
     public MoveShort(double toX, double toY, double toZ) {
         super(toX, toY, toZ);
-        EntityPlayerSP player = PlayerController.getInstance().getPlayer();
-        this.from = new BlockPos(player.getPosition()).add(0,0,0);
-        this.to = new BlockPos(toX,toY,toZ);
+        EntityPlayerSP player = pc.getPlayer();
+        this.from = player.getPositionVector();
+        this.to = new Vec3(toX,toY,toZ);
     }
-    public MoveShort(BlockPos from, BlockPos to) {
-        super(to.getX(), to.getY(), to.getZ());
-        this.from = new BlockPos(from);
-        this.to = new BlockPos(to);
+    public MoveShort(Vec3 from, Vec3 to) {
+        super(to.xCoord, to.yCoord, to.zCoord);
+        this.from = new Vec3(from.xCoord, from.yCoord, from.zCoord);
+        this.to = new Vec3(to.xCoord, to.yCoord, to.zCoord);
     }
-    public MoveShort(BlockPos from, BlockPos to, boolean verbose) {
-        super(to.getX(), to.getY(), to.getZ());
-        this.from = new BlockPos(from);
-        this.to = new BlockPos(to);
+    public MoveShort(Vec3 from, Vec3 to, boolean verbose) {
+        super(to.xCoord, to.yCoord, to.zCoord + 0.5);
+        this.from = new Vec3(from.xCoord, from.yCoord, from.zCoord);
+        this.to = new Vec3(to.xCoord, to.yCoord, to.zCoord);
         this.debug.setVerbosity(verbose);
     }
 
     public MoveShort(BlockPos to) {
         super(to.getX(), to.getY(), to.getZ());
         World w = Minecraft.getMinecraft().theWorld;
-        this.from = WorldTools.findBelowSurfaceBlock(w, getPosition());
-        this.to = new BlockPos(to);
+        this.from = WorldTools.findBelowSurface(w, getPosition());
+        this.to = new Vec3(to.getX() + 0.5, to.getY(), to.getZ() + 0.5);
         this.status = ControllerStatus.WAITING;
     }
 
@@ -103,8 +103,8 @@ public class MoveShort extends Move {
         }
         else if(c == null || stage == 0) {
             stage = 1;
-            BlockPos bc = path.getFirst();
-            c = new Vec3(bc.getX()+0.5, bc.getY()+1, bc.getZ()+0.5);
+            Vec3 bc = path.getFirst();
+            c = new Vec3(bc.xCoord, bc.yCoord, bc.zCoord);
         }
         else if(p.getPositionVector().distanceTo(c) < 0.5) {
             //if(verbose) System.out.println(p.getPositionVector().distanceTo(c));
@@ -116,20 +116,20 @@ public class MoveShort extends Move {
                 setDelay(500);
                 if (!path.isEmpty()) {
                     stage = 1;
-                    BlockPos bc = path.getFirst();
+                    Vec3 bc = path.getFirst();
                     Vec3 plv = p.getPositionVector();
                     //get the nearest ground block
-                    BlockPos plb = WorldTools.findBelowSurfaceBlock(w, new BlockPos(plv));
-                    for (BlockPos b2 : path) {
+                    Vec3 plb = WorldTools.findBelowSurface(w, plv);
+                    for (Vec3 b2 : path) {
                         if (WorldTools.isValidPath(w,
-                                new Vec3(plv.xCoord, plb.getY(), plv.zCoord),
-                                new Vec3(bc.getX()+0.5,bc.getY(),bc.getZ()+0.5))) {
+                                plb,
+                                bc)) {
                             bc = b2;
                         } else break;
                     }
 
-                    debug.debugBlock(bc, Block.getStateById(138));
-                    c = new Vec3(bc.getX()+0.5, bc.getY()+1, bc.getZ()+0.5);
+                    debug.debugBlock(new BlockPos(bc), Block.getStateById(138));
+                    c = new Vec3(bc.xCoord, bc.yCoord, bc.zCoord);
                 } else {
                     stage = 2;
                     c = new Vec3(toX+0.5, toY+1, toZ+0.5);
@@ -167,7 +167,7 @@ public class MoveShort extends Move {
         if(angle > 100 && angle < 260) pc.forward();
         else if(angle > 5 && angle < 85 || angle > 275 && angle < 355) pc.back();
 
-        if(angle > 10 && angle < 160) pc.left();
+        if(angle > 45 && angle < 160) pc.left();
         else if(angle > 180 && angle < 350) pc.right();
         else {
             //do obstacle checks
@@ -181,7 +181,7 @@ public class MoveShort extends Move {
         if(p.isInWater() && p.getPosition().getY() <= y) {
             pc.jump();
         }
-        if(WorldTools.isBlocked(w, getPosition(), new BlockPos(x,y,z), 1)) {
+        if(WorldTools.isBlocked(w, new BlockPos(getPosition()), new BlockPos(x,y,z), 1)) {
             pc.jump();
         }
     }
@@ -200,13 +200,13 @@ public class MoveShort extends Move {
         //EntityPlayerSP p = Minecraft.getMinecraft().thePlayer;
         World w = Minecraft.getMinecraft().theWorld;
         class Tuple implements Comparable<Tuple> {
-            LinkedList<BlockPos> path;
+            LinkedList<Vec3> path;
             double f,h;
-            public Tuple(LinkedList<BlockPos> path, double f) {
+            public Tuple(LinkedList<Vec3> path, double f) {
                 this.path = path;
                 this.f = f;
-                BlockPos b = path.getLast();
-                this.h = Math.abs(b.getX()-toX)+Math.abs(b.getY()-toY)+Math.abs(b.getZ()-toZ);
+                Vec3 b = path.getLast();
+                this.h = Math.abs(b.xCoord-toX)+Math.abs(b.yCoord-toY)+Math.abs(b.zCoord-toZ);
             }
             @Override
             public boolean equals(Object o) {
@@ -221,15 +221,16 @@ public class MoveShort extends Move {
 
             @Override
             public int hashCode() {
-                BlockPos b = path.getLast();
-                return b.getX() +
-                        (int)(WorldGrid.SURFACE_GRID_SIZE * b.getY()) +
-                        (int)(WorldGrid.SURFACE_GRID_SIZE*WorldGrid.SURFACE_GRID_SIZE*b.getZ());
+                Vec3 b = path.getLast();
+                return b.hashCode();
+//                return (int)b.xCoord +
+//                        (int)(WorldGrid.SURFACE_GRID_SIZE * b.yCoord) +
+//                        (int)(WorldGrid.SURFACE_GRID_SIZE*WorldGrid.SURFACE_GRID_SIZE*b.zCoord);
             }
         }
         PriorityQueue<Tuple> pool = new PriorityQueue<Tuple>();
-        HashSet<BlockPos> hist = new HashSet<BlockPos>();
-        LinkedList<BlockPos> q = new LinkedList<BlockPos>(); q.add(from);
+        HashSet<Vec3> hist = new HashSet<Vec3>();
+        LinkedList<Vec3> q = new LinkedList<Vec3>(); q.add(from);
         pool.add(new Tuple(q, 0));
 
         int[][] search = new int[][] {
@@ -249,71 +250,75 @@ Loop1:
                 return false;
             }
             Tuple t = pool.poll();
-            BlockPos b = t.path.getLast();
+            Vec3 p = t.path.getLast(); BlockPos b = new BlockPos(p);
             if(WorldTools.isSolid(w, b)) {
                 for(int[] s : search) {
-                    BlockPos b2 = b.add(s[0], s[1], s[2]);
+                    Vec3 p2 = p.addVector(s[0], s[1], s[2]); BlockPos b2 = new BlockPos(p2);
                     if (hist.contains(b2)) continue;
                     if (b2.equals(to)) {
-                        q = new LinkedList<BlockPos>(t.path);
+                        q = new LinkedList<Vec3>(t.path);
                         break Loop1;
                     }
                     if (WorldTools.isSolid(w, b2)) {
-                        b2 = WorldTools.findAboveSurfaceBlock(w, b2);
-                        if (b2.getY() - b.getY() > 1 || !WorldTools.open(w, b, 3) || !WorldTools.open(w, b2, 2)) continue;
+                        p2 = WorldTools.findAboveSurface(w, p2); b2 = new BlockPos(p2);
+                        if (p2.yCoord - p.yCoord > 1 ||
+                                !WorldTools.open(w, b, 3) || !WorldTools.open(w, b2, 2))
+                            continue;
                     }
                     else if (WorldTools.isWaterBlock(w, b2)) {
                         //TODO: Add a check for climbing up a wall of water
                         if (!WorldTools.open(w, b2, 2)) continue;
                     }
                     else {
-                        b2 = WorldTools.findBelowSurfaceBlock(w, b2);
-                        int d = b.getY() - b2.getY();
-                        if (d > 3 || !WorldTools.open(w, b, 2) || !WorldTools.open(w, b2, d + 2)) continue;
+                        p2 = WorldTools.findBelowSurface(w, p2); b2 = new BlockPos(p2);
+                        double d = p.yCoord - p2.yCoord;
+                        if (d > 3 || !WorldTools.open(w, b2, 2) ||
+                                !WorldTools.open(w, b2, (int)(d + 2)))
+                            continue;
                     }
-                    LinkedList<BlockPos> npath = new LinkedList<BlockPos>(t.path);
-                    npath.add(b2);
-                    hist.add(b2);
+                    LinkedList<Vec3> npath = new LinkedList<Vec3>(t.path);
+                    npath.add(p2);
+                    hist.add(p2);
                     //if i want to use A*, will have to also add the distance between b,b2
                     pool.add(new Tuple(npath, t.f + 0));
                 }
             }
             else if (WorldTools.isWaterBlock(w, b)) {
                 for(int[] s : search) {
-                    BlockPos b2 = b.add(s[0], s[1], s[2]);
+                    Vec3 p2 = p.addVector(s[0], s[1], s[2]); BlockPos b2 = new BlockPos(p2);
                     if (b2.equals(to)) {
-                        q = new LinkedList<BlockPos>(t.path);
+                        q = new LinkedList<Vec3>(t.path);
                         break Loop1;
                     }
                     if(WorldTools.isSolid(w, b2)) {
                         if(!WorldTools.open(w, b2, 2)) continue;
                     }
-                    LinkedList<BlockPos> npath = new LinkedList<BlockPos>(t.path);
-                    npath.add(b2);
-                    hist.add(b2);
+                    LinkedList<Vec3> npath = new LinkedList<Vec3>(t.path);
+                    npath.add(p2);
+                    hist.add(p2);
                     pool.add(new Tuple(npath, t.f + 0));
                 }
 
-                BlockPos bu = b.add(0,1,0);
-                if (bu.equals(to)) {
-                    q = new LinkedList<BlockPos>(t.path);
+                Vec3 pu = p.addVector(0,1,0); BlockPos bu = new BlockPos(pu);
+                if (pu.equals(to)) {
+                    q = new LinkedList<Vec3>(t.path);
                     break Loop1;
                 }
-                if(hist.contains(bu) && WorldTools.isWaterBlock(w, bu) && WorldTools.open(w, bu, 1)) {
-                    LinkedList<BlockPos> npath = new LinkedList<BlockPos>(t.path);
-                    npath.add(bu);
-                    hist.add(bu);
+                if(hist.contains(pu) && WorldTools.isWaterBlock(w, bu) && WorldTools.open(w, bu, 1)) {
+                    LinkedList<Vec3> npath = new LinkedList<Vec3>(t.path);
+                    npath.add(pu);
+                    hist.add(pu);
                     pool.add(new Tuple(npath, t.f + 0));
                 }
-                BlockPos bd = b.add(0,-1,0);
-                if (bd.equals(to)) {
-                    q = new LinkedList<BlockPos>(t.path);
+                Vec3 pd = p.addVector(0, -1, 0); BlockPos bd = new BlockPos(pd);
+                if (pd.equals(to)) {
+                    q = new LinkedList<Vec3>(t.path);
                     break Loop1;
                 }
-                if(!hist.contains(bd)) {
-                    LinkedList<BlockPos> npath = new LinkedList<BlockPos>(t.path);
-                    npath.add(bd);
-                    hist.add(bd);
+                if(!hist.contains(pd)) {
+                    LinkedList<Vec3> npath = new LinkedList<Vec3>(t.path);
+                    npath.add(pd);
+                    hist.add(pd);
                     pool.add(new Tuple(npath, t.f + 0));
                 }
             }
@@ -325,7 +330,7 @@ Loop1:
         return true;
     }
 
-    public static boolean pathExists(BlockPos from, BlockPos to) {
+    public static boolean pathExists(Vec3 from, Vec3 to) {
         return new MoveShort(from, to, false).calculate();
     }
 
@@ -337,6 +342,8 @@ Loop1:
 
     @Override
     public String toString() {
-        return String.format("MoveShort f:(%d, %d, %d) t:(%d, %d, %d)", from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ());
+        return String.format("MoveShort f:(%-5.2f, %-5.2f, %-5.2f) t:(%-5.2f, %-5.2f, %-5.2f)",
+                from.xCoord, from.yCoord, from.zCoord,
+                to.xCoord, to.yCoord, to.zCoord);
     }
 }

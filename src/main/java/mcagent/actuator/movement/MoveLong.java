@@ -14,12 +14,12 @@ import java.util.*;
  */
 public class MoveLong extends Move {
 
-    private BlockPos from,to;
+    private Vec3 from,to;
     public MoveLong(double toX, double toY, double toZ) {
         super(toX, toY, toZ);
         EntityPlayerSP p = Minecraft.getMinecraft().thePlayer;
         from = getPosition();
-        to = new BlockPos(toX, toY, toZ);
+        to = new Vec3(toX, toY, toZ);
         status = ControllerStatus.WAITING;
     }
 
@@ -57,12 +57,12 @@ public class MoveLong extends Move {
     @Override
     public boolean calculate() {
         WorldGrid wg = WorldGrid.getInstance();
-        LinkedList<Target> fromPool = new LinkedList<Target>(wg.getNearestTargets(from, 10));
-        LinkedList<Target> toPool = new LinkedList<Target>(wg.getNearestTargets(to, 10));
+        LinkedList<Target> fromPool = new LinkedList<Target>(wg.getNearestTargets(new BlockPos(from), 10));
+        LinkedList<Target> toPool = new LinkedList<Target>(wg.getNearestTargets(new BlockPos(to), 10));
         Target t1 = null;
         Target t2temp = null;
-        while(!fromPool.isEmpty() && !MoveShort.pathExists(from,(t1 = fromPool.poll()).getBlock()));
-        while(!toPool.isEmpty() && !MoveShort.pathExists(to,(t2temp = toPool.poll()).getBlock()));
+        while(!fromPool.isEmpty() && !MoveShort.pathExists(from, (t1 = fromPool.poll()).getVector()));
+        while(!toPool.isEmpty() && !MoveShort.pathExists(to, (t2temp = toPool.poll()).getVector()));
         final Target t2 = t2temp;
         if(t1 == null) {
             debug.info("FAILURE: Unable to find acceptable starting point.");
@@ -128,6 +128,8 @@ Loop1:  while(true) {
 
     @Override
     public String toString() {
-        return String.format("MoveLong{f=(%d,%d,%d), t=(%d,%d,%d)}", from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ());
+        return String.format("MoveLong{f=(%-5.2f,%-5.2f,%-5.2f), t=(%-5.2f,%-5.2f,%-5.2f)}",
+                from.xCoord, from.yCoord, from.zCoord,
+                to.xCoord, to.yCoord, to.zCoord);
     }
 }

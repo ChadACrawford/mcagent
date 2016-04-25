@@ -14,27 +14,24 @@ import java.util.LinkedList;
 /**
  * Created by Chad on 5/24/2015.
  */
-public class PlayerController implements Controller {
+public class PlayerController {
     private static PlayerController instance = null;
     private final EntityPlayerSP player;
     private final World world;
-    private ControllerStatus status = ControllerStatus.WAITING;
-    private LinkedList<PlayerControllerAction> currentActions = new LinkedList<PlayerControllerAction>();
 
     static OverrideKeyBinding keyUp,keyDown,keyLeft,keyRight,keyJump,keyAttack;
 
-    private PlayerController() {
-        player = Minecraft.getMinecraft().thePlayer;
-        world = Minecraft.getMinecraft().theWorld;
-        //setKeyBindings();
+    public PlayerController(World world, EntityPlayerSP player) {
+        this.world = world;
+        this.player = player;
     }
 
-    public static PlayerController getInstance() {
-        if(instance == null) {
-            instance = new PlayerController();
-        }
-        return instance;
-    }
+//    public static PlayerController getInstance() {
+//        if(instance == null) {
+//            instance = new PlayerController();
+//        }
+//        return instance;
+//    }
 
     private static final boolean OVERRIDE_KEYS = true;
     public static void setKeyBindings() {
@@ -54,7 +51,6 @@ public class PlayerController implements Controller {
             keyJump = new OverrideKeyBinding(kbj.getKeyDescription(), kbj.getKeyCode(), kbj.getKeyCategory());
             keyAttack = new OverrideKeyBinding(kba.getKeyDescription(), kba.getKeyCode(), kba.getKeyCategory());
 
-
             mc.gameSettings.keyBindForward = keyUp;
             mc.gameSettings.keyBindBack = keyDown;
             mc.gameSettings.keyBindLeft = keyLeft;
@@ -70,56 +66,6 @@ public class PlayerController implements Controller {
             keyJump = new OverrideKeyBinding(null, -1, null);
             keyAttack = new OverrideKeyBinding(null, -1, null);
         }
-    }
-
-    public void act() {
-        unpressAll();
-
-        for(PlayerControllerAction action: currentActions) {
-            if(action.getStatus() == ControllerStatus.WAITING) action.act();
-            if(action.getStatus() == ControllerStatus.FINISHED || action.getStatus() == ControllerStatus.FAILURE) {
-                System.out.println("Finished action " + action);
-                currentActions.remove(action);
-            }
-        }
-    }
-
-    public void moveTo(double x, double y, double z, boolean look) {
-        PlayerControllerAction action;
-        if(look) {
-            action = new ActionMoveLook(x,y,z);
-        } else {
-            action = new ActionMove(x, y, z);
-        }
-        currentActions.add(action);
-    }
-    public void moveTo(double x, double y, double z) {
-        moveTo(x,y,z,false);
-    }
-
-    public void lookAt(double x, double y, double z) {
-        PlayerControllerAction action = new ActionLook(x, y, z);
-        currentActions.add(action);
-    }
-
-    public void attack(Entity e) {
-        PlayerControllerAction action = new ActionAttackEntity(e);
-    }
-
-    public void attack(double x, double y, double z) {
-
-    }
-
-    public void mine(int x, int y, int z) {
-
-    }
-
-    public void mine(BlockPos b) {
-
-    }
-
-    public void harvest(BlockPos b) {
-
     }
 
     public void left() {
@@ -138,24 +84,35 @@ public class PlayerController implements Controller {
         //System.out.println("Back");
         keyDown.press();
     }
+
     public void stopMoving() {
         keyUp.unpress();
         keyDown.unpress();
         keyLeft.unpress();
         keyRight.unpress();
     }
+
     public void jump() {
         keyJump.press();
     }
+    public void unjump() {
+        keyJump.unpress();
+    }
+
     public void attack() {
         keyAttack.press();
     }
+    public void unattack() {
+        keyAttack.unpress();
+    }
+
     public void unpressAll() {
         keyUp.unpress();
         keyDown.unpress();
         keyLeft.unpress();
         keyRight.unpress();
         keyJump.unpress();
+        keyAttack.unpress();
     }
 
     public double getYaw() {
@@ -169,9 +126,6 @@ public class PlayerController implements Controller {
         return player.rotationPitch + 90;
     }
 
-    public ControllerStatus getStatus() {
-        return status;
-    }
     public EntityPlayerSP getPlayer() {
         return player;
     }

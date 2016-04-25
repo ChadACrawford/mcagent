@@ -12,71 +12,12 @@
       <sourceFolder url="file://$MODULE_DIR$/src/api/resources" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="Gradle: org.slick2d:slick2d-core:1.0.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: net.minecraft:launchwrapper:1.11" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.ow2.asm:asm-debug-all:5.0.3" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.typesafe.akka:akka-actor_2.11:2.3.3" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.typesafe:config:1.2.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.scala-lang:scala-actors-migration_2.11:1.1.0" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.scala-lang:scala-compiler:2.11.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.scala-lang.plugins:scala-continuations-library_2.11:1.0.2" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.scala-lang.plugins:scala-continuations-plugin_2.11.1:1.0.2" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.scala-lang:scala-library:2.11.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.scala-lang:scala-parser-combinators_2.11:1.0.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.scala-lang:scala-reflect:2.11.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.scala-lang:scala-swing_2.11:1.0.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.scala-lang:scala-xml_2.11:1.0.2" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: lzma:lzma:0.0.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: java3d:vecmath:1.5.2" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: net.sf.trove4j:trove4j:3.0.3" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.ibm.icu:icu4j-core-mojang:51.2" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: net.sf.jopt-simple:jopt-simple:4.6" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.paulscode:codecjorbis:20101023" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.paulscode:codecwav:20101023" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.paulscode:libraryjavasound:20101123" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.paulscode:librarylwjglopenal:20100824" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.paulscode:soundsystem:20120107" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: io.netty:netty-all:4.0.15.Final" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.google.guava:guava:17.0" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.apache.commons:commons-lang3:3.3.2" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: commons-io:commons-io:2.4" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: commons-codec:commons-codec:1.9" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: net.java.jinput:jinput:2.0.5" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: net.java.jutils:jutils:1.0.0" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.google.code.gson:gson:2.2.4" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.mojang:authlib:1.5.17" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.mojang:realms:1.6.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.apache.commons:commons-compress:1.8.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.apache.httpcomponents:httpclient:4.3.3" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: commons-logging:commons-logging:1.1.3" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.apache.httpcomponents:httpcore:4.3.2" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.apache.logging.log4j:log4j-api:2.0-beta9" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.apache.logging.log4j:log4j-core:2.0-beta9" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl:2.9.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl_util:2.9.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: tv.twitch:twitch:6.5" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.jcraft:jorbis:0.0.17" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.scala-lang:scala-actors:2.11.0" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.scala-lang.modules:scala-xml_2.11:1.0.2" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: net.java.jinput:jinput-platform:2.0.5:natives-linux" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: net.java.jinput:jinput-platform:2.0.5:natives-windows" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: net.java.jinput:jinput-platform:2.0.5:natives-osx" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: tv.twitch:twitch-platform:6.5:natives-windows-32" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: tv.twitch:twitch-platform:6.5:natives-windows-64" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: tv.twitch:twitch-platform:6.5:natives-osx" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: tv.twitch:twitch-external-platform:4.5:natives-windows-32" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: tv.twitch:twitch-external-platform:4.5:natives-windows-64" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:2.9.1:natives-windows" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:2.9.1:natives-linux" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:2.9.1:natives-osx" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.google.code.findbugs:jsr305:2.0.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: :forgeBin:1.8-11.14.1.1334" level="project" />
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
@@ -87,6 +28,19 @@
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.slick2d/slick2d-core/1.0.1/22e1d87a492f362042c4e23319e6930acb709a63/slick2d-core-1.0.1-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/junit/junit/4.12/2973d150c0dc1fefe998f834810d68f278ea58ec/junit-4.12.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/junit/junit/4.12/941a8be4506c65f0a9001c08812fb7da1e505e21/junit-4.12-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/junit/junit/4.12/a6c32b40bf3d76eca54e3c601e5d1470c86fcdfa/junit-4.12-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -597,6 +551,19 @@
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jcraft/jorbis/0.0.17/5446be5d62e4c6b347c8e6cd28dc00a936417ba2/jorbis-0.0.17-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar!/" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/ad09811315f1d4f5756986575b0ea16b99cd686f/hamcrest-core-1.3-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/1dc37250fbc78e23a65a67fbbaf71d2e9cbc3c0b/hamcrest-core-1.3-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -9,8 +9,10 @@ import scala.util.control.TailCalls;
  */
 public abstract class PlayerControllerAction implements Controller {
     protected ControllerStatus status;
+    protected PlayerController pc;
     private int ticks = 0;
-    protected PlayerControllerAction() {
+    protected PlayerControllerAction(PlayerController pc) {
+        this.pc = pc;
         this.status = ControllerStatus.WAITING;
     }
 

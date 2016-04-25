@@ -48,8 +48,8 @@ public abstract class Move implements Controller {
 
     public abstract Vec3 getCurrentGoal();
 
-    public static BlockPos getPosition() {
+    public static Vec3 getPosition() {
         EntityPlayerSP p = Minecraft.getMinecraft().thePlayer;
-        return new BlockPos(Math.floor(p.posX), Math.floor(p.posY), Math.floor(p.posZ));
+        return p.getPositionVector(); //new BlockPos(Math.floor(p.posX), Math.floor(p.posY), Math.floor(p.posZ));
     }
 }

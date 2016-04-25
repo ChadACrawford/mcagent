@@ -10,8 +10,8 @@ public class ActionAttack extends PlayerControllerAction {
     protected double atX,atY,atZ;
     protected ActionMoveLook mlAction;
 
-    public ActionAttack(double atX, double atY, double atZ) {
-        super();
+    public ActionAttack(PlayerController pc, double atX, double atY, double atZ) {
+        super(pc);
         this.atX = atX;
         this.atY = atY;
         this.atZ = atZ;
@@ -30,6 +30,11 @@ public class ActionAttack extends PlayerControllerAction {
         }
         else if (stage == 1) {
             //click
+            pc.attack();
+            stage++;
+        }
+        else if (stage == 2) {
+            pc.unattack();
             status = ControllerStatus.FINISHED;
             stage++;
         }

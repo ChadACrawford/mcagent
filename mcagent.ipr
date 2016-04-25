@@ -37,11 +37,6 @@
             <option value="$PROJECT_DIR$" />
           </set>
         </option>
-        <option name="myModules">
-          <set>
-            <option value="$PROJECT_DIR$" />
-          </set>
-        </option>
       </GradleProjectSettings>
     </option>
   </component>
@@ -198,7 +193,7 @@
       <module fileurl="file://$PROJECT_DIR$/mcagent.iml" filepath="$PROJECT_DIR$/mcagent.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="Oracle 1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="SvnBranchConfigurationManager">

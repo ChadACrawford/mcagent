@@ -6,7 +6,6 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import scala.actors.threadpool.Arrays;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,11 +46,11 @@ public class WorldTools {
      * @param p The block to begin searching at
      * @return The nearest surface block directly above p
      */
-    public static BlockPos findAboveSurfaceBlock(World w, BlockPos p) {
-        for(int i = 1; p.getY()+i <= w.getHeight(); i++) {
-            if(!isSolid(w,p.add(0,i,0))
-                    || isWaterBlock(w, p.add(0,i,0)) && !isSolid(w, p.add(0,i+1,0)))
-                return p.add(0,i-1,0);
+    public static Vec3 findAboveSurface(World w, Vec3 p) {
+        for(int i = 1; p.yCoord+i <= w.getHeight(); i++) {
+            if(!isSolid(w,new BlockPos(p.addVector(0,i,0)))
+                    || isWaterBlock(w, new BlockPos(p.addVector(0,i,0))) && !isSolid(w, new BlockPos(p.addVector(0,i+1,0))))
+                return p.addVector(0,i-1,0);
         }
         return null;
     }
@@ -62,11 +61,12 @@ public class WorldTools {
      * @param p The block to begin searching at
      * @return The first surface block directly below p
      */
-    public static BlockPos findBelowSurfaceBlock(World w, BlockPos p) {
-        for(int i = -1; p.getY()+i>=0; i--) {
-            BlockPos n = p.add(0,i,0);
-            if(isWaterBlock(w, n) && isWaterBlock(w, n.add(0,-1,0))) return n.add(0,-1,0);
-            if(isSolid(w,n)) return n;
+    public static Vec3 findBelowSurface(World w, Vec3 p) {
+        for(int i = -1; p.yCoord+i>=0; i--) {
+            Vec3 n = p.addVector(0, i, 0);
+            BlockPos nb = new BlockPos(n);
+            if(isWaterBlock(w, nb) && isWaterBlock(w, nb.add(0,-1,0))) return n.addVector(0,-1,0);
+            if(isSolid(w, nb)) return n;
         }
         return null;
     }
@@ -93,8 +93,7 @@ public class WorldTools {
     }));
     public static boolean isSolid(World w, BlockPos p) {
         int id = Block.getIdFromBlock(w.getBlockState(p).getBlock());
-        if(!nonSolidBlockIds.contains(id)) return true;
-        return false;
+        return !nonSolidBlockIds.contains(id);
     }
 
     public static boolean isWaterBlock(World w, BlockPos p) {
@@ -108,7 +107,7 @@ public class WorldTools {
      * @param y y-coordinate
      * @param z z-coordinate
      * @param r square radius
-     * @return
+     * @return Whether the region around the block is open or not.
      */
     private static boolean openSpace(World w, double x, double y, double z, double r) {
         BlockPos[] blocks = {
@@ -141,21 +140,14 @@ public class WorldTools {
 
     /**
      * Retrieves all blocks that intersect with a line.
-     * @param w World object
      * @param from Line beginning endpoint
      * @param to Line finishing endpoint
      * @return List of blocks that intersect line from "from" to "to"
      */
-    public static List<BlockPos> intersectingBlocks(World w, final Vec3 from, final Vec3 to) {
-        double d = Math.sqrt(
-                Math.pow(from.xCoord - to.xCoord, 2)
-                + Math.pow(from.yCoord - to.yCoord, 2)
-                + Math.pow(from.zCoord - to.zCoord, 2)
-        );
-
+    public static List<BlockPos> intersectingBlocks(final Vec3 from, final Vec3 to) {
         final List<BlockPos> blocks = new LinkedList<BlockPos>();
         blocks.add(new BlockPos(from));
-        blocks.add(new BlockPos(to));
+        //blocks.add(new BlockPos(to));
 
 //        You can't do anything to fix this
 //        I don't even care
@@ -163,34 +155,64 @@ public class WorldTools {
             F(double m, double b) {this.m = m; this.b = b;}
             double m,b;
             double e(double t) { return m*t + b; }
-            double solve(double f) { return (f - b)/m; }
+            double solve(double f) { return m == 0 ? Double.POSITIVE_INFINITY:(f - b)/m; }
+            double next(double y) {
+                if(m == 0) return y;
+                if(y % 1. > 0) return m > 0 ? Math.ceil(y) : Math.floor(y);
+                else return m > 0 ? y + 1 : y - 1;
+            }
+            boolean passed(double f, double toF) {
+                return m > 0 ? f >= toF : f <= toF;
+            }
+            int iter() {
+                return m > 0 ? 1 : -1;
+            }
         }
         F fx = new F(to.xCoord - from.xCoord, from.xCoord);
         F fy = new F(to.yCoord - from.yCoord, from.yCoord);
         F fz = new F(to.zCoord - from.zCoord, from.zCoord);
+        double cx = from.xCoord, cy = from.yCoord, cz = from.zCoord;
 
-//        I HATE JAVA!!!!! HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHA
-//        JAVA IS THE WORST LANGUAGE OF ALL AND I HATE ANYTHING THAT INVOLVES USING JAVA
-//        ALL READERS SUFFER AS I CONTINUE TO ABUSE THIS LANGUAGE ***FOR MY OWN PLEASURE***
-        class ILine {
-            ILine(F f1, F f2, F f3, double x1, double x2, int ix, int iy, int iz) {
-                int dx = x1 < x2 ? 1 : -1;
-                int n = (int)Math.abs(x1 - x2);
-//                if(n == 0) return;
-                for(int i = 0; i < n; i++) {
-                    double x = Math.ceil(x1) + dx * i;
-                    double t = f1.solve(x), y = f2.e(t), z = f3.e(t);
-                    double[] r1 = new double[] {x, y, z};
-//                    double[] r2 = new double[] {x-1, y, z};
-                    blocks.add(new BlockPos(r1[ix], r1[iy], r1[iz]));
-//                    blocks.add(new BlockPos(r2[ix], r2[iy], r2[iz]));
-                }
-            }
+        while(!fx.passed(cx, to.xCoord) || !fy.passed(cy, to.yCoord) || !fz.passed(cz, to.zCoord)) {
+            double xt = fx.solve(fx.next(cx));
+            double yt = fy.solve(fy.next(cy));
+            double zt = fz.solve(fz.next(cz));
+            double minT = Math.min(xt, Math.min(yt, zt));
+            double nx = fx.e(minT), ny = fy.e(minT), nz = fz.e(minT);
+            BlockPos c = new BlockPos(cx, cy, cz);
+            if(nx % 1 == 0 && fx.m != 0) blocks.add(c.add(fx.iter(), 0, 0));
+            if(ny % 1 == 0 && fy.m != 0) blocks.add(c.add(0, fy.iter(), 0));
+            if(nz % 1 == 0 && fz.m != 0) blocks.add(c.add(0, 0, fz.iter()));
+            if(nx % 1 == 0 && ny % 1 == 0 && fx.m != 0 && fy.m != 0) blocks.add(c.add(fx.iter(), fy.iter(), 0));
+            if(nx % 1 == 0 && nz % 1 == 0 && fx.m != 0 && fy.m != 0) blocks.add(c.add(fx.iter(), 0, fz.iter()));
+            if(ny % 1 == 0 && nz % 1 == 0 && fy.m != 0 && fz.m != 0) blocks.add(c.add(0, fy.iter(), fz.iter()));
+            if(nx % 1 == 0 && ny % 1 == 0 && nz % 1 == 0 && fx.m != 0 && fy.m != 0 && fz.m != 0)
+                blocks.add(c.add(fx.iter(), fy.iter(), fz.iter()));
+            cx = nx; cy = ny; cz = nz;
         }
-
-        ILine IDontGiveAShitAboutYourOpinionOnMyLackOfCodingStyle = new ILine(fx, fy, fz, from.xCoord, to.xCoord, 0, 1, 2);
-        new ILine(fy, fx, fz, from.yCoord, to.yCoord, 1, 0, 2);
-        new ILine(fz, fx, fy, from.zCoord, to.zCoord, 1, 2, 0);
+//       keeping this mess here because I'm proud of it
+////        I HATE JAVA!!!!! HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHA
+////        JAVA IS THE WORST LANGUAGE OF ALL AND I HATE ANYTHING THAT INVOLVES USING JAVA
+////        ALL READERS SUFFER AS I CONTINUE TO ABUSE THIS LANGUAGE ***FOR MY OWN PLEASURE***
+//        class ILine {
+//            ILine(F f1, F f2, F f3, double x1, double x2, int ix, int iy, int iz) {
+//                int dx = x1 < x2 ? 1 : -1;
+//                int n = (int)Math.abs(x1 - x2);
+////                if(n == 0) return;
+//                for(int i = 0; i < n; i++) {
+//                    double x = Math.ceil(x1) + dx * i;
+//                    double t = f1.solve(x), y = f2.e(t), z = f3.e(t);
+//                    double[] r1 = new double[] {x, y, z};
+////                    double[] r2 = new double[] {x-1, y, z};
+//                    blocks.add(new BlockPos(r1[ix], r1[iy], r1[iz]));
+////                    blocks.add(new BlockPos(r2[ix], r2[iy], r2[iz]));
+//                }
+//            }
+//        }
+//
+//        ILine IDontGiveAShitAboutYourOpinionOnMyLackOfCodingStyle = new ILine(fx, fy, fz, from.xCoord, to.xCoord, 0, 1, 2);
+//        new ILine(fy, fx, fz, from.yCoord, to.yCoord, 1, 0, 2);
+//        new ILine(fz, fx, fy, from.zCoord, to.zCoord, 1, 2, 0);
 
         return blocks;
     }
@@ -211,7 +233,7 @@ public class WorldTools {
 //        If the distance requires at least one jump, then this is not a valid path.
         if(Math.abs(from.yCoord - to.yCoord) > 0.5) return false;
 
-        List<BlockPos> blocks = intersectingBlocks(w, from, to);
+        List<BlockPos> blocks = intersectingBlocks(from, to);
 
         int dx = from.xCoord < to.xCoord ? 1 : -1, dz = from.zCoord < to.zCoord ? 1 : -1;
         boolean isDiagonal = Math.floor(from.xCoord) != Math.floor(to.xCoord)
@@ -256,7 +278,7 @@ public class WorldTools {
     }
 
     /**
-     *
+     * I'm the best
      * @param w
      * @param from
      * @param to
@@ -266,10 +288,11 @@ public class WorldTools {
         if(!isSolid(w, new BlockPos(from)) || !isSolid(w, new BlockPos(to)))
             return false;
 
-        List<BlockPos> botblocks = intersectingBlocks(w, from, to);
-        List<BlockPos> topblocks = intersectingBlocks(w,
+        List<BlockPos> botblocks = intersectingBlocks(from, to);
+        List<BlockPos> topblocks = intersectingBlocks(
                 from.addVector(0,PLAYER_HEIGHT,0),
-                to.addVector(0,PLAYER_HEIGHT,0));
+                to.addVector(0,PLAYER_HEIGHT,0)
+        );
         for(BlockPos b: botblocks) {
             if(!isWaterBlock(w, b)) return false;
         }

@@ -157,7 +157,7 @@ public class WorldGrid {
             for(int z = centerZ-SURFACE_SEARCH_SIZE; z <= centerZ+SURFACE_SEARCH_SIZE; z+=SURFACE_GRID_SIZE) {
 //                BlockPos p = new BlockPos(x,w.getHeight(),z);
 //                p = WorldTools.findGroundBlock(w, p);
-                BlockPos p = WorldTools.findBelowSurfaceBlock(w, new BlockPos(x, w.getHeight()+1, z));
+                BlockPos p = new BlockPos(WorldTools.findBelowSurface(w, new Vec3(x, w.getHeight()+1, z)));
                 Target t = addTarget(p, false);
                 targets.add(t);
                 //exploreCaves(t);
@@ -173,7 +173,7 @@ public class WorldGrid {
             List<Target> results =  getNearestTargets(t.coords(), MAX_NEIGHBORS);
             for(Target s: results) {
                 if(WorldTools.distance(s.coords(),t.coords()) < MAX_DISTANCE && t != s
-                        && MoveShort.pathExists(t.getBlock(), s.getBlock())) {
+                        && MoveShort.pathExists(t.getVector(), s.getVector())) {
                     t.getNeighbors().add(s);
                 }
             }
@@ -204,10 +204,10 @@ public class WorldGrid {
                 if(x == target.getX() && z == target.getZ()) continue;
                 BlockPos p = new BlockPos(x,target.getY(),z);
                 BlockPos n;
-                if(WorldTools.isSolid(w,p)) {
-                    n = WorldTools.findAboveSurfaceBlock(w, p);
+                if(WorldTools.isSolid(w, p)) {
+                    n = new BlockPos(WorldTools.findAboveSurface(w, new Vec3(p.getX(), p.getY(), p.getZ())));
                 } else {
-                    n = WorldTools.findBelowSurfaceBlock(w, p);
+                    n = new BlockPos(WorldTools.findBelowSurface(w, new Vec3(p.getX(), p.getY(), p.getZ())));
                 }
                 if(n == null || !inRange(n.getX(),n.getZ()) || !WorldTools.open(w,n,2)  || WorldTools.open(w, n, w.getHeight())) continue;
                 Tuple tu = new Tuple();

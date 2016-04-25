@@ -73,12 +73,12 @@ public class MCAgent implements DebugObject {
         }
         else if(init && !drawing && !moving) {
             PlayerController pc = PlayerController.getInstance();
-            pc.moveTo(5000, 100, 5000, true);
+            //pc.moveTo(5000, 100, 5000, true);
             moving = true;
         }
         else if(init && moving) {
             PlayerController pc = PlayerController.getInstance();
-            pc.act();
+            //pc.act();
         }
 
 //        if(!init) {
