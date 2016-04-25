@@ -15,7 +15,7 @@ public class ActionAttack extends PlayerControllerAction {
         this.atX = atX;
         this.atY = atY;
         this.atZ = atZ;
-        mlAction = new ActionMoveLook(atX,atY,atZ);
+        mlAction = new ActionMoveLook(pc, atX, atY, atZ);
         if(mlAction.getStatus() == ControllerStatus.FAILURE) {
             this.status = ControllerStatus.FAILURE;
         }

@@ -1,6 +1,8 @@
 build/*
-eclipse/saves/*
-eclipse/logs/*
-eclipse/crash-reports/*
-.idea
-.gradle
+minecraft/
+.idea/
+.gradle/
+
+mcagent.iml
+mcagent.ipr
+mcagent.iws

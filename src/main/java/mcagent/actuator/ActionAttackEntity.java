@@ -7,7 +7,8 @@ import net.minecraft.entity.Entity;
  */
 public class ActionAttackEntity extends PlayerControllerAction {
     protected Entity e;
-    public ActionAttackEntity(Entity e) {
+    public ActionAttackEntity(PlayerController pc, Entity e) {
+        super(pc);
         this.e = e;
     }
 

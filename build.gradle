@@ -1,80 +1,62 @@
+//-*- mode: groovy -*-
 buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
+  repositories {
+    mavenCentral()
+    maven {
+      name = "forge"
+      url = "http://files.minecraftforge.net/maven"
     }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
-
+    maven {
+      name = "sonatype"
+      url = "https://oss.sonatype.org/content/repositories/snapshots/"
     }
+  }
+  dependencies {
+    classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+  }
 }
 
 apply plugin: 'forge'
 
-version = "1.0"
-group= "edu.utulsa.www" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+version = "0.1"
+group= "edu.utulsa.masters" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "mcagent"
 
 minecraft {
-    version = "1.8-11.14.1.1334"
-    runDir = "eclipse"
+  version = "1.8-11.14.1.1334"
+  runDir = "minecraft"
     
-    // the mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   snapshot are built nightly.
-    // stable_#            stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not allways work.
-    // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20141130"
+  // the mappings can be changed at any time, and must be in the following format.
+  // snapshot_YYYYMMDD   snapshot are built nightly.
+  // stable_#            stables are built at the discretion of the MCP team.
+  // Use non-default mappings at your own risk. they may not allways work.
+  // simply re-run your setup task after changing the mappings to update your workspace.
+  mappings = "snapshot_20141130"
 }
 
 repositories {
-    mavenCentral()
-
-    maven {
-        name 'rtree'
-        url 'https://github.com/davidmoten/'
-    }
+  mavenCentral()
 }
 
 dependencies {
-    // you may put jars on which you depend on in ./libs
-    // or you may define them like so..
-    //compile "some.group:artifact:version:classifier"
-    //compile "some.group:artifact:version"
-    compile group: 'org.slick2d', name: 'slick2d-core', version: '1.0.1'
-    // real examples
-    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
-    compile 'junit:junit:4.12'
+  compile group: 'org.slick2d', name: 'slick2d-core', version: '1.0.1'
+  compile 'junit:junit:4.12'
 
-    // for more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+  compile 'com.github.davidmoten:rtree:0.7.5'
 }
 
 processResources
 {
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+  inputs.property "version", project.version
+  inputs.property "mcversion", project.minecraft.version
 
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
+  from(sourceSets.main.resources.srcDirs) {
+    include 'mcmod.info'
                 
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-        
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+    expand 'version':project.version, 'mcversion':project.minecraft.version
+  }
+
+  from(sourceSets.main.resources.srcDirs) {
+    exclude 'mcmod.info'
+  }
 }
