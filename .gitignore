@@ -1,8 +1,23 @@
+# -*- mode: gitignore; -*-
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Forge
 build/*
 minecraft/
+
+# IDEA/Gradle
 .idea/
 .gradle/
-
 mcagent.iml
 mcagent.ipr
 mcagent.iws
+
