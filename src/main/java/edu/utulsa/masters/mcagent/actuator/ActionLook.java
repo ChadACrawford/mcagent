@@ -1,6 +1,4 @@
-package mcagent.actuator;
-
-import net.minecraft.client.entity.EntityPlayerSP;
+package edu.utulsa.masters.mcagent.actuator;
 
 /**
  * Created by Chad on 5/25/2015.

@@ -1,9 +1,9 @@
-package mcagent.actuator.movement;
+package edu.utulsa.masters.mcagent.actuator.movement;
 
-import jdk.nashorn.internal.ir.Block;
-import mcagent.Debugger;
-import mcagent.actuator.PlayerController;
-import mcagent.util.WorldTools;
+import edu.utulsa.masters.mcagent.actuator.PlayerController;
+import edu.utulsa.masters.mcagent.util.WorldTools;
+import edu.utulsa.masters.search.NodeEvaluatable;
+import edu.utulsa.masters.search.TreeSearch;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -96,63 +96,48 @@ public class Path {
         currentPosition = 0;
     }
 
-    public static Path computePath(World w, BlockPos start, final BlockPos end) {
+    public static Path compute(final World w, BlockPos start, final BlockPos end) {
         if(!isValidBlock(w, start) || !isValidBlock(w, end)) return null;
 
-        class Node implements Comparable<Node> {
-            LinkedList<BlockPos> path;
-            BlockPos b;
+        class BlockNode implements NodeEvaluatable<BlockNode> {
+            BlockPos p;
             double f;
-            double h;
-            int hashCode;
-            Node(LinkedList<BlockPos> path, BlockPos b, double f) {
-                this.path = path;
-                this.f = f; this.b = b;
-                this.h = calcDistance();
-                hashCode = (new Point3i(b.getX(), b.getY(), b.getZ())).hashCode();
-            }
-            double calcDistance() {
-                return b.distanceSq(end);
+
+            BlockNode(BlockNode parent, BlockPos p) {
+                this.p = p;
+                if(parent != null) this.f = parent.f + h();
+                else this.f = 0;
             }
 
             @Override
-            public int compareTo(Node o) {
-                return (this.f + this.h < o.h + o.f) ? -1 : 1;
+            public double f() {
+                return f;
+            }
+
+            double h() {
+                return Math.abs(end.getX()-p.getX()) + Math.abs(end.getY()-p.getY()) + Math.abs(end.getZ()+p.getZ());
+            }
+
+            @Override
+            public List<BlockNode> search() {
+                List<BlockPos> next = nextSteps(w, p);
+                LinkedList<BlockNode> items = new LinkedList<BlockNode>();
+                for(BlockPos n: next) items.add(new BlockNode(this, p));
+                return items;
+            }
+
+            @Override
+            public boolean equals(Object other) {
+                return p.equals(((BlockNode)other).p);
             }
         }
 
-        HashSet<BlockPos> visited = new HashSet<BlockPos>();
-        visited.add(start);
+        LinkedList<BlockNode> nodePath = TreeSearch.search(new BlockNode(null, start), new BlockNode(null, end));
+        if(nodePath == null) return null;
+        LinkedList<BlockPos> path = new LinkedList<BlockPos>();
+        for(BlockNode n: nodePath) path.add(n.p);
 
-        Node first = new Node(new LinkedList<BlockPos>(Arrays.asList(new BlockPos[]{start})), start, 0);
-        PriorityQueue<Node> open = new PriorityQueue<Node>();
-        open.add(first);
-
-        int numLoops = 0;
-        while(true) {
-            if(numLoops > 5000 || open.isEmpty())
-                return null;
-
-            Node bestNode = open.poll();
-
-            List<BlockPos> next = nextSteps(w, bestNode.b);
-
-            for(BlockPos b2: next) {
-                if(visited.contains(b2)) continue;
-                LinkedList<BlockPos> npath = new LinkedList<BlockPos>(bestNode.path);
-                npath.addLast(b2);
-                if(end.equals(b2)) {
-                    return new Path(w, npath);
-                }
-                else {
-                    Node n = new Node(npath, b2, bestNode.f + 1);
-                    visited.add(b2);
-                    open.add(n);
-                }
-            }
-
-            numLoops++;
-        }
+        return new Path(w, path);
     }
 
     /**

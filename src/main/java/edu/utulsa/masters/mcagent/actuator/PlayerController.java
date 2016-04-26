@@ -1,17 +1,12 @@
-package mcagent.actuator;
+package edu.utulsa.masters.mcagent.actuator;
 
-import mcagent.*;
-import mcagent.util.WorldTools;
+import edu.utulsa.masters.mcagent.util.WorldTools;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import scala.util.control.TailCalls;
-
-import java.util.LinkedList;
 
 /**
  * Created by Chad on 5/24/2015.

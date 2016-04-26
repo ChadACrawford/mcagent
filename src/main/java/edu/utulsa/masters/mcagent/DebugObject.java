@@ -1,4 +1,4 @@
-package mcagent;
+package edu.utulsa.masters.mcagent;
 
 /**
  * Created by chad on 12/28/15.

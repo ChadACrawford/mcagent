@@ -1,6 +1,5 @@
-package mcagent.actuator;
+package edu.utulsa.masters.mcagent.actuator;
 
-import mcagent.ControllerStatus;
 import net.minecraft.util.Vec3;
 
 /**

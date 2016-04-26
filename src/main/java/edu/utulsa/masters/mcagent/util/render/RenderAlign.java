@@ -1,7 +1,7 @@
-package mcagent.util.render;
+package edu.utulsa.masters.mcagent.util.render;
 
 /**
- * cheat.mcagent.util.mcagent.util.render
+ * cheat.edu.utulsa.masters.mcagent.util.edu.utulsa.masters.mcagent.util.render
  * <p/>
  * Created on 5/2/2015 by Matthew
  */

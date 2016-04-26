@@ -1,9 +1,9 @@
-package mcagent.tests.util;
+package edu.utulsa.masters.mcagent.tests.util;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 import org.junit.*;
-import mcagent.util.WorldTools;
+import edu.utulsa.masters.mcagent.util.WorldTools;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 

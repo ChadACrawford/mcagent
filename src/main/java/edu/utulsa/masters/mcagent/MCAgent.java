@@ -1,5 +1,5 @@
-package mcagent;
-import mcagent.actuator.PlayerController;
+package edu.utulsa.masters.mcagent;
+import edu.utulsa.masters.mcagent.actuator.PlayerController;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;

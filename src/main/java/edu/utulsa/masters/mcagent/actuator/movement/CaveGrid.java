@@ -1,4 +1,4 @@
-package mcagent.actuator.movement;
+package edu.utulsa.masters.mcagent.actuator.movement;
 
 import java.util.LinkedList;
 

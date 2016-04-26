@@ -1,4 +1,4 @@
-package mcagent.util;
+package edu.utulsa.masters.mcagent.util;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.BlockPos;

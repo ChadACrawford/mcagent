@@ -1,9 +1,7 @@
-package mcagent.actuator.movement;
+package edu.utulsa.masters.mcagent.actuator.movement;
 
 import com.github.davidmoten.rtree.RTree;
 import com.github.davidmoten.rtree.geometry.Geometry;
-
-import java.util.LinkedList;
 
 /**
  * Created by chad on 4/25/16.

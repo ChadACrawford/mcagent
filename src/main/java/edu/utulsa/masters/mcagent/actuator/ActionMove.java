@@ -1,4 +1,4 @@
-package mcagent.actuator;
+package edu.utulsa.masters.mcagent.actuator;
 
 /**
  * Created by Chad on 5/24/2015.

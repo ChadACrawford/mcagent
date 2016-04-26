@@ -1,4 +1,4 @@
-package mcagent;
+package edu.utulsa.masters.mcagent;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;

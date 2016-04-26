@@ -1,6 +1,5 @@
-package mcagent.util.render;
+package edu.utulsa.masters.mcagent.util.render;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
@@ -10,14 +9,14 @@ import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.TextureImpl;
 
 /**
- * cheat.mcagent.util
+ * cheat.edu.utulsa.masters.mcagent.util
  * <p/>
  * Created on 4/17/2015 by Matthew
  */
 public class Render3D extends RenderBase
 {
     /**
-     * Translates the mcagent.util.render position about the origin
+     * Translates the edu.utulsa.masters.mcagent.util.render position about the origin
      * @param origin The position of the player (usually)
      * @param start Position of the entity
      */
@@ -96,8 +95,8 @@ public class Render3D extends RenderBase
     }
 
     /**
-     * Get the current mcagent.util.render position
-     * @return mcagent.util.render position
+     * Get the current edu.utulsa.masters.mcagent.util.render position
+     * @return edu.utulsa.masters.mcagent.util.render position
      */
     public Vec3 getRenderPos()
     {
@@ -221,8 +220,8 @@ public class Render3D extends RenderBase
 
     /**
      * Draw 2D text in the 3D world
-     * @param text String to mcagent.util.render
-     * @param pos position to mcagent.util.render at
+     * @param text String to edu.utulsa.masters.mcagent.util.render
+     * @param pos position to edu.utulsa.masters.mcagent.util.render at
      * @param color color
      * @param depth if it should have depth
      */
