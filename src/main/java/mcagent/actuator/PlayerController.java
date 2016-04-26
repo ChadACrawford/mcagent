@@ -1,11 +1,13 @@
 package mcagent.actuator;
 
 import mcagent.*;
+import mcagent.util.WorldTools;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import scala.util.control.TailCalls;
 
@@ -111,6 +113,43 @@ public class PlayerController {
         keyRight.unpress();
         keyJump.unpress();
         keyAttack.unpress();
+    }
+
+    public double moveTo(double x, double y, double z) {
+        EntityPlayerSP p = getPlayer();
+        World w = getWorld();
+        Vec3 o = p.getLookVec();
+        double dx = x-p.posX, dz = z-p.posZ;
+
+        double angle = Math.atan2(dx, -dz)/(2*Math.PI)*360+180 - getYaw();
+        if(Math.abs(angle) > 180) {
+            angle /= -2;
+        }
+        angle += 180;
+
+        //System.out.format("Angle: %9.6f\n", angle);
+        if(angle > 100 && angle < 260) forward();
+        else if(angle > 5 && angle < 85 || angle > 275 && angle < 355) back();
+
+        if(angle > 10 && angle < 160) left();
+        else if(angle > 180 && angle < 350) right();
+        else {
+//            //do obstacle checks
+//            if (Minecraft.getSystemTime() % 1000 < 500) {
+//                left();
+//            } else {
+//                right();
+//            }
+        }
+
+        if(p.isInWater() && p.getPosition().getY() <= y) {
+            jump();
+        }
+        if(WorldTools.isBlocked(w, p.getPosition(), new BlockPos(x, y, z), 1)) {
+            jump();
+        }
+
+        return p.getPosition().distanceSq(x, y, z);
     }
 
     public static final double ACCEL = 5.0;

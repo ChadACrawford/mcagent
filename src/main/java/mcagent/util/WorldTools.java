@@ -88,17 +88,23 @@ public class WorldTools {
     }
 
     static final HashSet<Integer> nonSolidBlockIds = new HashSet<Integer>(Arrays.asList(new Integer[] {
-            0,6,8,9,27,28,31,32,37,38,39,40,50,51,55,59,63,65,66,68,69,70,72,75,
+            0,6,27,28,31,32,37,38,39,40,50,51,55,59,63,65,66,68,69,70,72,75,
             76,77,83,104,105,106,140,141,142,143,144,147,148,149,150,157,175,176,177,
     }));
+    static final HashSet<Integer> waterBlockIds = new HashSet<Integer>(Arrays.asList(new Integer[] {8, 9}));
     public static boolean isSolid(World w, BlockPos p) {
         int id = Block.getIdFromBlock(w.getBlockState(p).getBlock());
-        return !nonSolidBlockIds.contains(id);
+        return !nonSolidBlockIds.contains(id) && !waterBlockIds.contains(id);
     }
 
     public static boolean isWaterBlock(World w, BlockPos p) {
         int id = Block.getIdFromBlock(w.getBlockState(p).getBlock());
-        return id == 7 || id == 8;
+        return waterBlockIds.contains(id);
+    }
+
+    public static boolean isPassable(World w, BlockPos p) {
+        int id = Block.getIdFromBlock(w.getBlockState(p).getBlock());
+        return nonSolidBlockIds.contains(id);
     }
 
     /**
@@ -180,6 +186,8 @@ public class WorldTools {
             double minT = Math.min(xt, Math.min(yt, zt));
             double nx = fx.e(minT), ny = fy.e(minT), nz = fz.e(minT);
             BlockPos c = new BlockPos(cx, cy, cz);
+            // wow this is such clearn code
+            // i am the best at java
             if(nx % 1 == 0 && fx.m != 0) blocks.add(c.add(fx.iter(), 0, 0));
             if(ny % 1 == 0 && fy.m != 0) blocks.add(c.add(0, fy.iter(), 0));
             if(nz % 1 == 0 && fz.m != 0) blocks.add(c.add(0, 0, fz.iter()));
