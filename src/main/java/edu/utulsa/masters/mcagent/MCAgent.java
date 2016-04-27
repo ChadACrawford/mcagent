@@ -1,51 +1,101 @@
 package edu.utulsa.masters.mcagent;
-import edu.utulsa.masters.mcagent.actuator.PlayerController;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
+import edu.utulsa.masters.mcagent.actuator.ActionMove;
+import edu.utulsa.masters.mcagent.actuator.PlayerController;
+import edu.utulsa.masters.mcagent.util.WorldTools;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.Vec3;
+import net.minecraft.world.World;
+
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Created by Chad on 5/24/2015.
- *
- * Top-level class handles all agent behavior.
+ * Created by chad on 4/26/16.
  */
+public class MCAgent extends Thread {
+    private static int idCount = 0;
+    int id;
+    World world;
+    EntityPlayerSP player;
+    PlayerController pc;
+    Logger log;
 
-
-@SideOnly(Side.CLIENT)
-@Mod(modid = MCAgent.MODID, version = MCAgent.VERSION)
-public class MCAgent implements DebugObject {
-    public static final String MODID = "Minecraft Agent";
-    public static final String VERSION = "0.1";
-    private Debugger debug = new Debugger(this);
-
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent event)
-    {
-        PlayerController.setKeyBindings();
-        MCAgent mc = new MCAgent();
-        FMLCommonHandler.instance().bus().register(mc);
-        MinecraftForge.EVENT_BUS.register(mc);
+    private static HashMap<EntityPlayerSP, MCAgent> agents = new HashMap<EntityPlayerSP, MCAgent>();
+    public static synchronized MCAgent getAgent(EntityPlayerSP player) {
+        if(!agents.containsKey(player)) {
+            agents.put(player, new MCAgent(player));
+        }
+        return agents.get(player);
     }
 
-    boolean init = false, drawing=false, moving = false;
-    long start = 0;
-    @SubscribeEvent
-    public void onPlayerUpdate(TickEvent.PlayerTickEvent e) {
+    public MCAgent(EntityPlayerSP player) {
+        this.player = player;
+        this.world = player.getEntityWorld();
+        this.pc = new PlayerController(world, player);
+        this.id = idCount++;
+        log = Logger.getLogger(String.format("MCAgent {id: %d}", id ));
     }
 
-    @SubscribeEvent
-    public void renderWorldLastEvent(RenderWorldLastEvent event) {
+//    public void log(String format, Object... args) {
+//        String message = String.format(format, args);
+//        System.out.format("[MCAgent id: %d] %s\n", id, message);
+//    }
+
+    public void run() {
+        log.log(Level.INFO, String.format("Started { world: %s player: %s }", world.toString(), player.toString()));
+
+        // Wait a bit for the world to load
+        try {
+            sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        player = Minecraft.getMinecraft().thePlayer;
+
+        log.log(Level.INFO, "Beginning execution...");
+
+        while(true) {
+            randomWalk();
+        }
     }
 
-    @Override
-    public String debugName() {
-        return "MCAgent";
+    public void randomWalk() {
+        BlockPos p1 = player.getPosition().add(0,-1,0);
+        BlockPos p2 = p1.add(5,0,5);
+        if(WorldTools.isSolid(world, p2)) {
+            Vec3 v2 = WorldTools.findAboveSurface(world, WorldTools.toVec3(p2));
+            if(v2 != null) p2 = new BlockPos(v2);
+        }
+        else {
+            Vec3 v2 = WorldTools.findBelowSurface(world, WorldTools.toVec3(p2));
+            if(v2 != null) p2 = new BlockPos(v2);
+        }
+
+        ActionMove a = new ActionMove(pc, p2.getX(), p2.getY(), p2.getZ());
+
+        log.log(Level.INFO, "Finished computing path. Now to follow it.");
+
+        while(true) {
+            ControllerStatus status = a.getStatus();
+            //log.log(Level.INFO, status.toString());
+            if(status == ControllerStatus.FINISHED) {
+                log.log(Level.INFO, "Finished!");
+                break;
+            }
+            if(status == ControllerStatus.FAILURE) {
+                log.log(Level.INFO, "Failed!");
+                break;
+            }
+            a.performAction();
+        }
+    }
+
+    public void renderEvent() {
+        pc.doLook();
     }
 }

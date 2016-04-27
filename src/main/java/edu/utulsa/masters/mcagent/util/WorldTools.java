@@ -25,6 +25,10 @@ public class WorldTools {
         return null;
     }
 
+    public static Vec3 toVec3(BlockPos p) {
+        return new Vec3(p.getX() + 0.5, p.getY(), p.getZ() + 0.5);
+    }
+
     public static double distance(Vec3 v1, Vec3 v2) {
         return Math.sqrt(Math.pow(v1.xCoord-v2.xCoord,2)+Math.pow(v1.yCoord-v2.yCoord,2)+Math.pow(v1.zCoord-v2.zCoord,2));
     }
@@ -105,6 +109,10 @@ public class WorldTools {
     public static boolean isPassable(World w, BlockPos p) {
         int id = Block.getIdFromBlock(w.getBlockState(p).getBlock());
         return nonSolidBlockIds.contains(id);
+    }
+
+    public static int getBlockID(World w, BlockPos p) {
+        return Block.getIdFromBlock(w.getBlockState(p).getBlock());
     }
 
     /**

@@ -16,17 +16,15 @@ public abstract class PlayerControllerAction implements Controller {
     }
 
     public void act() {
-        status = ControllerStatus.BUSY;
+        if(status == ControllerStatus.FAILURE) return;
+        if(status == ControllerStatus.WAITING) status = ControllerStatus.BUSY;
         try {
             performAction();
             ticks++;
-            if(status != ControllerStatus.BUSY) return;
         } catch(Exception e) {
             e.printStackTrace();
             status = ControllerStatus.FAILURE;
-            return;
         }
-        status = ControllerStatus.WAITING;
     }
 
     protected abstract void performAction();

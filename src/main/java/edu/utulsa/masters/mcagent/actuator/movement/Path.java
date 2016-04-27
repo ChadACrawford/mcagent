@@ -19,6 +19,8 @@ public class Path {
     protected LinkedList<BlockPos> path;
     protected Vec3[] refinedPath;
 
+    private static final double REFINE_BOUNDARY = 0.02;
+
     private Path(World w, LinkedList<BlockPos> path) {
         this.w = w;
         this.path = path;
@@ -36,14 +38,14 @@ public class Path {
 
         int i = path.size()-1;
         BlockPos b1 = iterator.previous();
-        refinedPath[i] = new Vec3(b1.getX() + 0.5, b1.getY(), b1.getZ() + 0.5);
+        refinedPath[i] = new Vec3(b1.getX() + 0.5, b1.getY() + 1, b1.getZ() + 0.5);
         while(iterator.hasPrevious()) {
             i--;
             Vec3 p = refinedPath[i+1];
             BlockPos b2 = iterator.previous();
 
-            double xLeft = b2.getX() + 0.2, xRight = b2.getX() + 0.8,
-                    zLeft = b2.getZ() + 0.2, zRight = b2.getZ() + 0.8;
+            double xLeft = b2.getX() + REFINE_BOUNDARY, xRight = b2.getX() + 1 - REFINE_BOUNDARY,
+                    zLeft = b2.getZ() + REFINE_BOUNDARY, zRight = b2.getZ() + 1 - REFINE_BOUNDARY;
 
             double xCoord = 0, zCoord = 0;
 
@@ -55,11 +57,11 @@ public class Path {
             else if(p.zCoord > zRight) zCoord = zRight;
             else zCoord = p.zCoord;
 
-            refinedPath[i] = new Vec3(xCoord, b2.getY(), zCoord);
+            refinedPath[i] = new Vec3(xCoord, b2.getY() + 1, zCoord);
 
             b1 = b2;
         }
-        refinedPath[0] = new Vec3(start.getX() + 0.5, start.getY(), start.getZ() + 0.5);
+        refinedPath[0] = new Vec3(start.getX() + 0.5, start.getY() + 1, start.getZ() + 0.5);
     }
 
     public boolean isValidPath() {
@@ -77,16 +79,22 @@ public class Path {
     }
 
     int currentPosition = 0;
-    public boolean control(PlayerController pc) throws Exception {
+    public boolean control(PlayerController pc) {
         if(!isRefined()) {
             refine();
+            System.out.println("Refined.");
         }
 
         if(currentPosition >= refinedPath.length) return true;
 
+        int lookPos = Math.min(refinedPath.length-1, currentPosition+2);
+        Vec3 lookVec = refinedPath[lookPos].addVector(0, 1, 0);
+
+        pc.look(lookVec.xCoord, lookVec.yCoord, lookVec.zCoord);
+
         Vec3 p = refinedPath[currentPosition];
         double d = pc.moveTo(p.xCoord, p.yCoord, p.zCoord);
-        if(d < 0.1) {
+        if(d < 0.2) {
             currentPosition++;
         }
         return false;
@@ -122,13 +130,18 @@ public class Path {
             public List<BlockNode> search() {
                 List<BlockPos> next = nextSteps(w, p);
                 LinkedList<BlockNode> items = new LinkedList<BlockNode>();
-                for(BlockPos n: next) items.add(new BlockNode(this, p));
+                for(BlockPos n: next) items.add(new BlockNode(this, n));
                 return items;
             }
 
             @Override
             public boolean equals(Object other) {
                 return p.equals(((BlockNode)other).p);
+            }
+
+            @Override
+            public int hashCode() {
+                return p.hashCode();
             }
         }
 

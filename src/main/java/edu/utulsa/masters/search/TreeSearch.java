@@ -51,6 +51,7 @@ public class TreeSearch<T extends NodeEvaluatable<T>> {
     private LinkedList<T> doSearch() {
         HashSet<T> history = new HashSet<T>();
         PriorityQueue<Node> open = new PriorityQueue<Node>();
+        history.add(start);
 
         Node s = new Node(null, start);
         open.add(s);
