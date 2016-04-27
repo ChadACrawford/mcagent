@@ -1,6 +1,7 @@
 package edu.utulsa.masters.mcagent.actuator;
 
 import edu.utulsa.masters.mcagent.ControllerStatus;
+import edu.utulsa.masters.mcagent.Debugger;
 import edu.utulsa.masters.mcagent.actuator.movement.Path;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.BlockPos;
@@ -26,7 +27,9 @@ public class ActionMove extends PlayerControllerAction {
             path = Path.compute(pc.getWorld(), player.getPosition().add(0,-1,0), new BlockPos(moveX, moveY, moveZ));
             if(path == null) {
                 status = ControllerStatus.FAILURE;
+                return;
             }
+            path.debug();
         }
     }
 

@@ -10,11 +10,12 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import java.util.HashMap;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by chad on 4/26/16.
+ * This agent controllers a single MC player.
  */
 public class MCAgent extends Thread {
     private static int idCount = 0;
@@ -22,7 +23,8 @@ public class MCAgent extends Thread {
     World world;
     EntityPlayerSP player;
     PlayerController pc;
-    Logger log;
+    Random rand = new Random();
+    Debugger debug = new Debugger(this);
 
     private static HashMap<EntityPlayerSP, MCAgent> agents = new HashMap<EntityPlayerSP, MCAgent>();
     public static synchronized MCAgent getAgent(EntityPlayerSP player) {
@@ -37,7 +39,6 @@ public class MCAgent extends Thread {
         this.world = player.getEntityWorld();
         this.pc = new PlayerController(world, player);
         this.id = idCount++;
-        log = Logger.getLogger(String.format("MCAgent {id: %d}", id ));
     }
 
 //    public void log(String format, Object... args) {
@@ -46,7 +47,7 @@ public class MCAgent extends Thread {
 //    }
 
     public void run() {
-        log.log(Level.INFO, String.format("Started { world: %s player: %s }", world.toString(), player.toString()));
+        debug.info(String.format("Started { world: %s player: %s }", world.toString(), player.toString()));
 
         // Wait a bit for the world to load
         try {
@@ -57,7 +58,7 @@ public class MCAgent extends Thread {
 
         player = Minecraft.getMinecraft().thePlayer;
 
-        log.log(Level.INFO, "Beginning execution...");
+        debug.info("Beginning execution...");
 
         while(true) {
             randomWalk();
@@ -66,29 +67,35 @@ public class MCAgent extends Thread {
 
     public void randomWalk() {
         BlockPos p1 = player.getPosition().add(0,-1,0);
-        BlockPos p2 = p1.add(5,0,5);
+        BlockPos p2 = p1.add(rand.nextInt(10),0,rand.nextInt(10));
+
+        debug.format("Trying path %s.", p2.toString());
+
         if(WorldTools.isSolid(world, p2)) {
-            Vec3 v2 = WorldTools.findAboveSurface(world, WorldTools.toVec3(p2));
-            if(v2 != null) p2 = new BlockPos(v2);
+            p2 = WorldTools.findAboveSurface(world, p2);
         }
         else {
-            Vec3 v2 = WorldTools.findBelowSurface(world, WorldTools.toVec3(p2));
-            if(v2 != null) p2 = new BlockPos(v2);
+            p2 = WorldTools.findBelowSurface(world, p2);
+        }
+
+        if(p2 == null) {
+            debug.info("Invalid path.");
+            return;
         }
 
         ActionMove a = new ActionMove(pc, p2.getX(), p2.getY(), p2.getZ());
 
-        log.log(Level.INFO, "Finished computing path. Now to follow it.");
+        debug.info("Finished computing path. Now to follow it.");
 
         while(true) {
             ControllerStatus status = a.getStatus();
             //log.log(Level.INFO, status.toString());
             if(status == ControllerStatus.FINISHED) {
-                log.log(Level.INFO, "Finished!");
+                debug.info("Finished!");
                 break;
             }
             if(status == ControllerStatus.FAILURE) {
-                log.log(Level.INFO, "Failed!");
+                debug.info("Failed!");
                 break;
             }
             a.performAction();
@@ -97,5 +104,10 @@ public class MCAgent extends Thread {
 
     public void renderEvent() {
         pc.doLook();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("MCAgent id: %d", id);
     }
 }

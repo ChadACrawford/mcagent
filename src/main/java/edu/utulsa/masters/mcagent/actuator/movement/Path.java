@@ -1,9 +1,12 @@
 package edu.utulsa.masters.mcagent.actuator.movement;
 
+import edu.utulsa.masters.mcagent.Debugger;
 import edu.utulsa.masters.mcagent.actuator.PlayerController;
 import edu.utulsa.masters.mcagent.util.WorldTools;
 import edu.utulsa.masters.search.NodeEvaluatable;
 import edu.utulsa.masters.search.TreeSearch;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -102,6 +105,12 @@ public class Path {
 
     public void reset() {
         currentPosition = 0;
+    }
+
+    Debugger debug;
+    public void debug() {
+        debug = new Debugger(this);
+        for(BlockPos b: path) debug.debugBlock(b, Block.getStateById(57));
     }
 
     public static Path compute(final World w, BlockPos start, final BlockPos end) {

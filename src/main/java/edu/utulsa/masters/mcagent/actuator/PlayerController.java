@@ -8,6 +8,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+import javax.vecmath.Vector2d;
+
 /**
  * Created by Chad on 5/24/2015.
  */
@@ -132,55 +134,50 @@ public class PlayerController {
     }
 
     public double moveTo(double x, double y, double z) {
-        EntityPlayerSP p = getPlayer();
         World w = getWorld();
-        Vec3 o = p.getLookVec();
-        double dx = x-p.posX, dz = z-p.posZ;
+        Vec3 o = player.getLookVec();
 
-        double angle = Math.atan2(dx, -dz)/(2*Math.PI)*360+180 - getYaw();
-        if(Math.abs(angle) > 180) {
-            angle /= -2;
-        }
-        angle += 180;
+        Vector2d toVec = new Vector2d(x - player.posX, z - player.posZ);
+        Vector2d forwardVec = new Vector2d(o.xCoord, o.zCoord);
+        Vector2d leftVec = new Vector2d(o.zCoord, o.xCoord);
+        Vector2d bothVec = new Vector2d(forwardVec.getX() + leftVec.getX(), forwardVec.getY() + leftVec.getY());
+        toVec.normalize();
+        forwardVec.normalize();
+        leftVec.normalize();
+        bothVec.normalize();
 
-        //System.out.format("Angle: %9.6f\n", angle);
-        if(angle > 100 && angle < 260) {
-            unback();
-            forward();
-        }
-        else if(angle > 5 && angle < 85 || angle > 275 && angle < 355) {
-            unforward();
-            back();
-        }
+        double projF = forwardVec.dot(toVec),
+                projL = leftVec.dot(toVec),
+                projB = bothVec.dot(toVec);
 
-        if(angle > 10 && angle < 160) {
-            unright();
-            left();
+        unpressAll();
+        if(Math.abs(projB) > Math.abs(projF) && Math.abs(projB) > Math.abs(projL)) {
+            if(projF > 0) forward();
+            else back();
+
+            if(projL > 0) left();
+            else right();
         }
-        else if(angle > 180 && angle < 350) {
-            unleft();
-            right();
+        else if(Math.abs(projF) > Math.abs(projL)) {
+            if(projF > 0) forward();
+            else back();
         }
         else {
-//            //do obstacle checks
-//            if (Minecraft.getSystemTime() % 1000 < 500) {
-//                left();
-//            } else {
-//                right();
-//            }
+            if(projL > 0) left();
+            else right();
         }
 
-        if(p.isInWater() && p.getPosition().getY() <= y) {
+        if(player.isInWater() && player.getPosition().getY() <= y) {
             jump();
         }
-        else if(WorldTools.isBlocked(w, p.getPosition(), new BlockPos(x, y, z), 1)) {
+        else if(WorldTools.isBlocked(w, player.getPosition(), new BlockPos(x, y, z), 1)) {
             jump();
         }
         else {
             unjump();
         }
 
-        return p.getPositionVector().distanceTo(new Vec3(x, y, z));
+        return player.getPositionVector().distanceTo(new Vec3(x, y, z));
     }
 
     public static final double ACCEL = 5.0;

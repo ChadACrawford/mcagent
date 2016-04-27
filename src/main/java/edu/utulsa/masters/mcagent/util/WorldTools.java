@@ -50,11 +50,11 @@ public class WorldTools {
      * @param p The block to begin searching at
      * @return The nearest surface block directly above p
      */
-    public static Vec3 findAboveSurface(World w, Vec3 p) {
-        for(int i = 1; p.yCoord+i <= w.getHeight(); i++) {
-            if(!isSolid(w,new BlockPos(p.addVector(0,i,0)))
-                    || isWaterBlock(w, new BlockPos(p.addVector(0,i,0))) && !isSolid(w, new BlockPos(p.addVector(0,i+1,0))))
-                return p.addVector(0,i-1,0);
+    public static BlockPos findAboveSurface(World w, BlockPos p) {
+        for(int i = 1; p.getY()+i <= w.getHeight(); i++) {
+            if(!isSolid(w, p.add(0, i, 0))
+                    || isWaterBlock(w, p.add(0,i,0)) && !isSolid(w, p.add(0,i+1,0)))
+                return p.add(0,i-1,0);
         }
         return null;
     }
@@ -65,12 +65,11 @@ public class WorldTools {
      * @param p The block to begin searching at
      * @return The first surface block directly below p
      */
-    public static Vec3 findBelowSurface(World w, Vec3 p) {
-        for(int i = -1; p.yCoord+i>=0; i--) {
-            Vec3 n = p.addVector(0, i, 0);
-            BlockPos nb = new BlockPos(n);
-            if(isWaterBlock(w, nb) && isWaterBlock(w, nb.add(0,-1,0))) return n.addVector(0,-1,0);
-            if(isSolid(w, nb)) return n;
+    public static BlockPos findBelowSurface(World w, BlockPos p) {
+        for(int i = -1; p.getY()+i>=0; i--) {
+            BlockPos np = p.add(0, i, 0);
+            if(isWaterBlock(w, np) && isWaterBlock(w, np.add(0,-1,0))) return np.add(0,-1,0);
+            if(isSolid(w, np)) return np;
         }
         return null;
     }
