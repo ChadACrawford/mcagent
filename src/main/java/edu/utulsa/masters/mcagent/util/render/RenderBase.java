@@ -1,4 +1,4 @@
-package mcagent.util.render;
+package edu.utulsa.masters.mcagent.util.render;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -10,7 +10,7 @@ import org.newdawn.slick.util.ResourceLoader;
 import java.io.InputStream;
 
 /**
- * cheat.mcagent.util
+ * cheat.edu.utulsa.masters.mcagent.util
  * <p/>
  * Created on 4/18/2015 by Matthew
  */

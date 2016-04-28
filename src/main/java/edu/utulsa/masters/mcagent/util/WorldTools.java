@@ -1,4 +1,4 @@
-package mcagent.util;
+package edu.utulsa.masters.mcagent.util;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.BlockPos;
@@ -25,6 +25,10 @@ public class WorldTools {
         return null;
     }
 
+    public static Vec3 toVec3(BlockPos p) {
+        return new Vec3(p.getX() + 0.5, p.getY(), p.getZ() + 0.5);
+    }
+
     public static double distance(Vec3 v1, Vec3 v2) {
         return Math.sqrt(Math.pow(v1.xCoord-v2.xCoord,2)+Math.pow(v1.yCoord-v2.yCoord,2)+Math.pow(v1.zCoord-v2.zCoord,2));
     }
@@ -46,11 +50,11 @@ public class WorldTools {
      * @param p The block to begin searching at
      * @return The nearest surface block directly above p
      */
-    public static Vec3 findAboveSurface(World w, Vec3 p) {
-        for(int i = 1; p.yCoord+i <= w.getHeight(); i++) {
-            if(!isSolid(w,new BlockPos(p.addVector(0,i,0)))
-                    || isWaterBlock(w, new BlockPos(p.addVector(0,i,0))) && !isSolid(w, new BlockPos(p.addVector(0,i+1,0))))
-                return p.addVector(0,i-1,0);
+    public static BlockPos findAboveSurface(World w, BlockPos p) {
+        for(int i = 1; p.getY()+i <= w.getHeight(); i++) {
+            if(!isSolid(w, p.add(0, i, 0))
+                    || isWaterBlock(w, p.add(0,i,0)) && !isSolid(w, p.add(0,i+1,0)))
+                return p.add(0,i-1,0);
         }
         return null;
     }
@@ -61,12 +65,11 @@ public class WorldTools {
      * @param p The block to begin searching at
      * @return The first surface block directly below p
      */
-    public static Vec3 findBelowSurface(World w, Vec3 p) {
-        for(int i = -1; p.yCoord+i>=0; i--) {
-            Vec3 n = p.addVector(0, i, 0);
-            BlockPos nb = new BlockPos(n);
-            if(isWaterBlock(w, nb) && isWaterBlock(w, nb.add(0,-1,0))) return n.addVector(0,-1,0);
-            if(isSolid(w, nb)) return n;
+    public static BlockPos findBelowSurface(World w, BlockPos p) {
+        for(int i = -1; p.getY()+i>=0; i--) {
+            BlockPos np = p.add(0, i, 0);
+            if(isWaterBlock(w, np) && isWaterBlock(w, np.add(0,-1,0))) return np.add(0,-1,0);
+            if(isSolid(w, np)) return np;
         }
         return null;
     }
@@ -88,17 +91,27 @@ public class WorldTools {
     }
 
     static final HashSet<Integer> nonSolidBlockIds = new HashSet<Integer>(Arrays.asList(new Integer[] {
-            0,6,8,9,27,28,31,32,37,38,39,40,50,51,55,59,63,65,66,68,69,70,72,75,
+            0,6,27,28,31,32,37,38,39,40,50,51,55,59,63,65,66,68,69,70,72,75,
             76,77,83,104,105,106,140,141,142,143,144,147,148,149,150,157,175,176,177,
     }));
+    static final HashSet<Integer> waterBlockIds = new HashSet<Integer>(Arrays.asList(new Integer[] {8, 9}));
     public static boolean isSolid(World w, BlockPos p) {
         int id = Block.getIdFromBlock(w.getBlockState(p).getBlock());
-        return !nonSolidBlockIds.contains(id);
+        return !nonSolidBlockIds.contains(id) && !waterBlockIds.contains(id);
     }
 
     public static boolean isWaterBlock(World w, BlockPos p) {
         int id = Block.getIdFromBlock(w.getBlockState(p).getBlock());
-        return id == 7 || id == 8;
+        return waterBlockIds.contains(id);
+    }
+
+    public static boolean isPassable(World w, BlockPos p) {
+        int id = Block.getIdFromBlock(w.getBlockState(p).getBlock());
+        return nonSolidBlockIds.contains(id);
+    }
+
+    public static int getBlockID(World w, BlockPos p) {
+        return Block.getIdFromBlock(w.getBlockState(p).getBlock());
     }
 
     /**
@@ -180,6 +193,8 @@ public class WorldTools {
             double minT = Math.min(xt, Math.min(yt, zt));
             double nx = fx.e(minT), ny = fy.e(minT), nz = fz.e(minT);
             BlockPos c = new BlockPos(cx, cy, cz);
+            // wow this is such clearn code
+            // i am the best at java
             if(nx % 1 == 0 && fx.m != 0) blocks.add(c.add(fx.iter(), 0, 0));
             if(ny % 1 == 0 && fy.m != 0) blocks.add(c.add(0, fy.iter(), 0));
             if(nz % 1 == 0 && fz.m != 0) blocks.add(c.add(0, 0, fz.iter()));

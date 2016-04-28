@@ -1,6 +1,6 @@
-package mcagent.actuator;
+package edu.utulsa.masters.mcagent.actuator;
 
-import mcagent.ControllerStatus;
+import edu.utulsa.masters.mcagent.ControllerStatus;
 
 /**
  * Created by Chad on 5/27/2015.

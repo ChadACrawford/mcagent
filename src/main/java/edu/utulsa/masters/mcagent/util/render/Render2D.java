@@ -1,4 +1,4 @@
-package mcagent.util.render;
+package edu.utulsa.masters.mcagent.util.render;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;

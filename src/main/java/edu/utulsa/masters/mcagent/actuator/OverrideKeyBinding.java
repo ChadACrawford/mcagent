@@ -1,4 +1,4 @@
-package mcagent.actuator;
+package edu.utulsa.masters.mcagent.actuator;
 
 import net.minecraft.client.settings.KeyBinding;
 
