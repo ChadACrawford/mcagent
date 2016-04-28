@@ -1,4 +1,4 @@
-package edu.utulsa.masters.mcagent.actuator;
+package edu.utulsa.masters.mcagent.overrides;
 
 import net.minecraft.client.settings.KeyBinding;
 
@@ -27,4 +27,7 @@ public class OverrideKeyBinding extends KeyBinding {
     public void unpress() {
         pressed = false;
     }
+
+    int timePressed = 0;
+    public void pressFor(int ticks) { }
 }

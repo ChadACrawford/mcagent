@@ -1,5 +1,6 @@
 package edu.utulsa.masters.mcagent;
 import edu.utulsa.masters.mcagent.actuator.PlayerController;
+import edu.utulsa.masters.mcagent.actuator.inventory.PlayerInventory;
 import edu.utulsa.masters.mcagent.util.OverrideMouseHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -37,9 +38,10 @@ public class MCAgentMod {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
-//        PlayerController.setKeyBindings();
-//        Minecraft.getMinecraft().mouseHelper = new OverrideMouseHelper();
-//
+        PlayerController.setKeyBindings();
+        PlayerInventory.loadRecipes();
+        Minecraft.getMinecraft().mouseHelper = new OverrideMouseHelper();
+
 //        MCAgentMod mc = new MCAgentMod();
 //        FMLCommonHandler.instance().bus().register(mc);
 //        MinecraftForge.EVENT_BUS.register(mc);

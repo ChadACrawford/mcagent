@@ -12,8 +12,12 @@ import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by chad on 4/26/16.
@@ -25,11 +29,21 @@ public class PlayerInventory {
     // This the the inventory that the player accesses when they press "e".
     ContainerPlayer playerContainer;
 
+    static List<RecipeHelper> recipes = new ArrayList<RecipeHelper>();
+
+    public static void loadRecipes() {
+        List newRecipes = CraftingManager.getInstance().getRecipeList();
+        for(Object recipe: newRecipes) {
+            if(recipe instanceof IRecipe) {
+                recipes.add(new RecipeHelper((IRecipe)recipe));
+            }
+        }
+    }
+
     public PlayerInventory(PlayerController pc) {
         this.pc = pc;
         this.playerContainer = (ContainerPlayer)pc.getPlayer().inventoryContainer;
     }
-
 
     /**
      * Moves the items from the given source slot into the player's inventory.
@@ -85,6 +99,17 @@ public class PlayerInventory {
         }
 
         return true;
+    }
+
+    /**
+     * Returns the amount of an item that the player has.
+     * @param item
+     * @return
+     */
+    public int getItemAmount(Item item) {
+        int amount = 0;
+        for(Slot s: getSlotsWithItem(item)) amount += s.getStack().stackSize;
+        return amount;
     }
 
     public LinkedList<Slot> getInventorySlots() {
@@ -168,6 +193,20 @@ public class PlayerInventory {
         else {
             return null;
         }
+    }
+
+    /**
+     * Returns the size of the current inventory.
+     * @return
+     */
+    public int craftingDimensions() {
+        if( currentlyInInventory() ) {
+            return 4;
+        }
+        else if( currentlyInWorkbench() ) {
+            return 9;
+        }
+        return 0;
     }
 
     public boolean swapSlots(Slot slot1, Slot slot2) {
