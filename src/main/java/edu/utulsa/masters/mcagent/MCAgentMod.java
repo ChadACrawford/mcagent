@@ -15,6 +15,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -50,6 +51,19 @@ public class MCAgentMod {
         Minecraft.getMinecraft().gameSettings.pauseOnLostFocus = false;
         Minecraft.getMinecraft().inGameHasFocus = false;
         EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+
+        // this is code that I developed to make a problem worse
+        // since i cant think of a better solution, making the problem worse must be the best solution
+        try {
+            Field fuckYouMC = EntityPlayerSP.class.getDeclaredField("sprintToggleTimer");
+            fuckYouMC.setAccessible(true);
+            fuckYouMC.set(player, 0);
+        } catch(NoSuchFieldException k) {
+            System.out.println("yea this aint happenin");
+        } catch(IllegalAccessException kk) { //le
+            System.out.println("this could be a little slow");
+        }
+
         //System.out.println(player);
         if(player == null) {
             return;
