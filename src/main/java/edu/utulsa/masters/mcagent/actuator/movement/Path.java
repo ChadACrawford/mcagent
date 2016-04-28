@@ -97,7 +97,7 @@ public class Path {
 
         Vec3 p = refinedPath[currentPosition];
         double d = pc.moveTo(p.xCoord, p.yCoord, p.zCoord);
-        if(d < 0.2) {
+        if(d < 0.3) {
             currentPosition++;
         }
         return false;

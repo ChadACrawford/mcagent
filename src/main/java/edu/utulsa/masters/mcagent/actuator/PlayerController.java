@@ -139,7 +139,7 @@ public class PlayerController {
 
         Vector2d toVec = new Vector2d(x - player.posX, z - player.posZ);
         Vector2d forwardVec = new Vector2d(o.xCoord, o.zCoord);
-        Vector2d leftVec = new Vector2d(o.zCoord, o.xCoord);
+        Vector2d leftVec = new Vector2d(o.zCoord, -o.xCoord);
         Vector2d bothVec = new Vector2d(forwardVec.getX() + leftVec.getX(), forwardVec.getY() + leftVec.getY());
         toVec.normalize();
         forwardVec.normalize();

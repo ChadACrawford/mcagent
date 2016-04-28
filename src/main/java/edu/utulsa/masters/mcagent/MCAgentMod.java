@@ -28,7 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @SideOnly(Side.CLIENT)
 @Mod(modid = MCAgentMod.MODID, version = MCAgentMod.VERSION)
-public class MCAgentMod implements DebugObject {
+public class MCAgentMod {
     public static final String MODID = "Minecraft Agent";
     public static final String VERSION = "0.1";
     private Debugger debug = new Debugger(this);
@@ -39,7 +39,6 @@ public class MCAgentMod implements DebugObject {
     {
         PlayerController.setKeyBindings();
         Minecraft.getMinecraft().mouseHelper = new OverrideMouseHelper();
-
 
         MCAgentMod mc = new MCAgentMod();
         FMLCommonHandler.instance().bus().register(mc);
@@ -70,13 +69,13 @@ public class MCAgentMod implements DebugObject {
         activeAgent.renderEvent();
     }
 
-    @SubscribeEvent
-    public void onWorldLoad(WorldEvent.Load e) {
-
-    }
+//    @SubscribeEvent
+//    public void onWorldLoad(WorldEvent.Load e) {
+//
+//    }
 
     @Override
-    public String debugName() {
+    public String toString() {
         return "MCAgentMod";
     }
 }
