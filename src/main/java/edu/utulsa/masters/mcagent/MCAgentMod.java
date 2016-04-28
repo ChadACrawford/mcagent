@@ -37,12 +37,12 @@ public class MCAgentMod {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
-        PlayerController.setKeyBindings();
-        Minecraft.getMinecraft().mouseHelper = new OverrideMouseHelper();
-
-        MCAgentMod mc = new MCAgentMod();
-        FMLCommonHandler.instance().bus().register(mc);
-        MinecraftForge.EVENT_BUS.register(mc);
+//        PlayerController.setKeyBindings();
+//        Minecraft.getMinecraft().mouseHelper = new OverrideMouseHelper();
+//
+//        MCAgentMod mc = new MCAgentMod();
+//        FMLCommonHandler.instance().bus().register(mc);
+//        MinecraftForge.EVENT_BUS.register(mc);
     }
 
     @SubscribeEvent

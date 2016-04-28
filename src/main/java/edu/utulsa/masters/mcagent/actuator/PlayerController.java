@@ -1,5 +1,6 @@
 package edu.utulsa.masters.mcagent.actuator;
 
+import edu.utulsa.masters.mcagent.actuator.inventory.PlayerInventory;
 import edu.utulsa.masters.mcagent.util.WorldTools;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -17,12 +18,14 @@ public class PlayerController {
     private static PlayerController instance = null;
     private final EntityPlayerSP player;
     private final World world;
+    public final PlayerInventory inventory;
 
     static OverrideKeyBinding keyUp, keyDown, keyLeft, keyRight, keyJump, keyAttack, keyUse;
 
     public PlayerController(World world, EntityPlayerSP player) {
         this.world = world;
         this.player = player;
+        this.inventory = new PlayerInventory(this);
     }
 
     private static final boolean OVERRIDE_KEYS = true;

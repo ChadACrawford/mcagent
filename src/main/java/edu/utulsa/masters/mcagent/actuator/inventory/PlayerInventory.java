@@ -10,7 +10,10 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+
+import java.util.LinkedList;
 
 /**
  * Created by chad on 4/26/16.
@@ -20,11 +23,151 @@ public class PlayerInventory {
 
     // As far as I can tell, this persists.
     // This the the inventory that the player accesses when they press "e".
-    Container playerContainer;
+    ContainerPlayer playerContainer;
 
     public PlayerInventory(PlayerController pc) {
         this.pc = pc;
-        this.playerContainer = pc.getPlayer().inventoryContainer;
+        this.playerContainer = (ContainerPlayer)pc.getPlayer().inventoryContainer;
+    }
+
+
+    /**
+     * Moves the items from the given source slot into the player's inventory.
+     * @param source The source slot.
+     * @return The number of items left.
+     */
+    public int mergeSlotIntoInventory(Slot source) {
+        if(!source.getHasStack()) return 0;
+        ItemStack stack = source.getStack();
+
+        LinkedList<Slot> sinks = getSlotsWithItem(stack.getItem());
+        for(Slot sink: sinks) {
+            mergeIntoSlot(source, sink, stack.stackSize);
+            if(stack.stackSize <= 0) return 0;
+        }
+
+        if(stack.stackSize > 0) {
+            for(Slot sink: getEmptySlots()) {
+                mergeIntoSlot(source, sink, stack.stackSize);
+                if(stack.stackSize <= 0) return 0;
+            }
+        }
+
+        return stack.stackSize;
+    }
+
+    /**
+     * Places an item from the player's inventory into the target slot.
+     * @param target The target slot.
+     * @param item The desired item.
+     * @return If the operation was a success.
+     */
+    public boolean placeItemsInSlot(Slot target, Item item, int amount) {
+        if(target.isItemValid(new ItemStack(item)))
+            return false;
+
+        LinkedList<Slot> sources = getSlotsWithItem(item);
+
+        int totalAmount = 0;
+        for(Slot s: sources) totalAmount += s.getStack().stackSize;
+        if(totalAmount < amount) return false;
+
+        for(Slot s: sources) {
+            ItemStack stack = s.getStack();
+            if(stack.stackSize < amount) {
+                amount -= stack.stackSize;
+                target.putStack(stack.splitStack(stack.stackSize));
+            }
+            else {
+                target.putStack(stack.splitStack(amount));
+                break;
+            }
+        }
+
+        return true;
+    }
+
+    public LinkedList<Slot> getInventorySlots() {
+        LinkedList<Slot> slots = new LinkedList<Slot>();
+        for(int i = 5; i < 45; i++) { //iterate over slots in the player's inventory
+            Slot slot = playerContainer.getSlot(i);
+            slots.add(slot);
+        }
+        return slots;
+    }
+
+    /**
+     * Grabs all slots with a given item from the player's inventory.
+     * @param item The item to search for.
+     * @return List of slots with the given item.
+     */
+    public LinkedList<Slot> getSlotsWithItem(Item item) {
+        LinkedList<Slot> slots = new LinkedList<Slot>();
+        for(Slot slot: getInventorySlots()) {
+            if(slot.getHasStack() && slot.getStack().getItem().equals(item)) {
+                slots.add(slot);
+            }
+        }
+        return slots;
+    }
+
+    public LinkedList<Slot> getEmptySlots() {
+        LinkedList<Slot> slots = new LinkedList<Slot>();
+        for(Slot slot: getInventorySlots()) {
+            if(!slot.getHasStack()) {
+                slots.add(slot);
+            }
+        }
+        return slots;
+    }
+
+    /**
+     * Moves items from a source slot into the target slot. If the target slot has fewer items than the specified
+     * amount, it moves as many items as possible.
+     * @param source The source slot.
+     * @param target The target slot.
+     * @param amount The amount of items to be moved.
+     * @return The number of items that were moved.
+     */
+    public int mergeIntoSlot(Slot source, Slot target, int amount) {
+        if(!source.getHasStack() || source.getStack().stackSize < amount ||
+                !target.isItemValid(source.getStack()))
+            return 0;
+
+        int maxAvailable = target.getSlotStackLimit() - target.getStack().stackSize;
+
+        if(amount > maxAvailable) {
+            target.putStack(source.getStack().splitStack(maxAvailable));
+            return maxAvailable;
+        }
+        else {
+            target.putStack(source.getStack().splitStack(amount));
+            return amount;
+        }
+    }
+
+    /**
+     * Grabs all slots available for crafting, with the first item being the SlotCrafting slots.
+     * @return Array of crafting slots.
+     */
+    public Slot[] craftingSlots() {
+        if( currentlyInInventory() ) {
+            Slot[] slots = new Slot[5];
+            for(int i = 0; i < 5; i++) {
+                slots[i] = playerContainer.getSlot(i);
+            }
+            return slots;
+        }
+        else if( currentlyInWorkbench() ) {
+            Slot[] slots = new Slot[10];
+            for(int i = 0; i < 10; i++) {
+                slots[i] = playerContainer.getSlot(i);
+            }
+            return slots;
+        }
+        else {
+            return null;
+        }
     }
 
     public boolean swapSlots(Slot slot1, Slot slot2) {
@@ -41,15 +184,11 @@ public class PlayerInventory {
             return true;
         }
         else if(stack1 == null) {
-            slot2.decrStackSize(stack2.stackSize);
-            slot1.putStack(stack2);
-            return true;
+            return mergeIntoSlot(slot2, slot1, stack2.stackSize) > 0;
         }
         else {
-            slot1.decrStackSize(stack1.stackSize);
-            slot2.putStack(stack1);
+            return mergeIntoSlot(slot1, slot2, stack1.stackSize) > 0;
         }
-        return false;
     }
 
     public boolean currentlyInInventory() {
@@ -64,8 +203,5 @@ public class PlayerInventory {
                 ((GuiContainer)currentScreen).inventorySlots instanceof ContainerWorkbench;
     }
 
-    public boolean craft() {
-        Slot craftingStack = playerContainer.getSlot(0);
-        return false;
-    }
+
 }
