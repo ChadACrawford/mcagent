@@ -1,13 +1,10 @@
 package edu.utulsa.masters.mcagent;
 import edu.utulsa.masters.mcagent.actuator.PlayerController;
 import edu.utulsa.masters.mcagent.actuator.inventory.PlayerInventory;
-import edu.utulsa.masters.mcagent.util.OverrideMouseHelper;
+import edu.utulsa.masters.mcagent.overrides.OverrideMouseHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.world.World;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -15,9 +12,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 
 /**
@@ -42,9 +36,9 @@ public class MCAgentMod {
         PlayerInventory.loadRecipes();
         Minecraft.getMinecraft().mouseHelper = new OverrideMouseHelper();
 
-//        MCAgentMod mc = new MCAgentMod();
-//        FMLCommonHandler.instance().bus().register(mc);
-//        MinecraftForge.EVENT_BUS.register(mc);
+        MCAgentMod mc = new MCAgentMod();
+        FMLCommonHandler.instance().bus().register(mc);
+        MinecraftForge.EVENT_BUS.register(mc);
     }
 
     @SubscribeEvent

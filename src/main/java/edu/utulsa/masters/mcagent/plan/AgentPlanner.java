@@ -1,7 +1,9 @@
 package edu.utulsa.masters.mcagent.plan;
 
 /**
- * Created by chad on 4/28/16.
+ * Planning algorithm using GraphPlan.
+ *
+ * I'm going to try implementing the SHOP2 planner. Let's see how that turns out.
  */
 public class AgentPlanner {
 }

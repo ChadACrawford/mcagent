@@ -1,4 +1,4 @@
-package edu.utulsa.masters.mcagent.util;
+package edu.utulsa.masters.mcagent.overrides;
 
 import net.minecraft.util.MouseHelper;
 

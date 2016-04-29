@@ -11,6 +11,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import javax.vecmath.Vector2d;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by Chad on 5/24/2015.
@@ -37,68 +39,55 @@ public class PlayerController {
     }
 
     private static final boolean OVERRIDE_KEYS = true;
-    static OverrideKeyBinding keyUp, keyDown, keyLeft, keyRight, keyJump, keyAttack, keyUse, keyInventory, keySneak,
-            keySprint, keyDrop, keyPickBlock, keyScreenshot, keyPlayerList, keySpectatorOutlines;
+    public static OverrideKeyBinding keyUp, keyDown, keyLeft, keyRight, keyJump, keyAttack, keyUse, keyInventory,
+            keySneak, keySprint, keyDrop, keyPickBlock, keyScreenshot, keyPlayerList, keySpectatorOutlines;
+    public static List<OverrideKeyBinding> keys = new LinkedList<OverrideKeyBinding>();
     public static void setKeyBindings() {
         Minecraft mc = Minecraft.getMinecraft();
-//        keyUp = overrideKeyBinding(mc.gameSettings.keyBindForward);
-//        keyDown = overrideKeyBinding(mc.gameSettings.keyBindBack);
-//        keyLeft = overrideKeyBinding(mc.gameSettings.keyBindLeft);
-//        keyRight = overrideKeyBinding(mc.gameSettings.keyBindRight);
-//        keyJump = overrideKeyBinding(mc.gameSettings.keyBindJump);
-//        keyAttack = overrideKeyBinding(mc.gameSettings.keyBindAttack);
-//        keyUse = overrideKeyBinding(mc.gameSettings.keyBindUseItem);
-//        keyInventory = overrideKeyBinding(mc.gameSettings.keyBindInventory);
-//        keySneak = overrideKeyBinding(mc.gameSettings.keyBindInventory);
-//        KeyBinding kbf = mc.gameSettings.keyBindForward;
-//        KeyBinding kbb = mc.gameSettings.keyBindBack;
-//        KeyBinding kbl = mc.gameSettings.keyBindLeft;
-//        KeyBinding kbr = mc.gameSettings.keyBindRight;
-//        KeyBinding kbj = mc.gameSettings.keyBindJump;
-//        KeyBinding kba = mc.gameSettings.keyBindAttack;
-//        KeyBinding kbu = mc.gameSettings.keyBindUseItem;
-//        KeyBinding kbInventory = mc.gameSettings.keyBindInventory;
-//        KeyBinding kbSneak = mc.gameSettings.keyBindSneak;
-//        KeyBinding kbSprint = mc.gameSettings.keyBindSprint;
-//        KeyBinding kbDrop = mc.gameSettings.keyBindDrop;
-//        KeyBinding kbPickBlock = mc.gameSettings.keyBindPickBlock;
-//        KeyBinding kbScreenshot = mc.gameSettings.keyBindScreenshot;
-//        KeyBinding kbPlayerList = mc.gameSettings.keyBindPlayerList;
-//        KeyBinding kbSpectatorOutlines = mc.gameSettings.keyBindSpectatorOutlines;
-//
-//
-//        if(OVERRIDE_KEYS) {
-//            keyUp = new OverrideKeyBinding(kbf.getKeyDescription(), kbf.getKeyCode(), kbf.getKeyCategory());
-//            keyDown = new OverrideKeyBinding(kbb.getKeyDescription(), kbb.getKeyCode(), kbb.getKeyCategory());
-//            keyLeft = new OverrideKeyBinding(kbl.getKeyDescription(), kbl.getKeyCode(), kbl.getKeyCategory());
-//            keyRight = new OverrideKeyBinding(kbr.getKeyDescription(), kbr.getKeyCode(), kbr.getKeyCategory());
-//            keyJump = new OverrideKeyBinding(kbj.getKeyDescription(), kbj.getKeyCode(), kbj.getKeyCategory());
-//            keyAttack = new OverrideKeyBinding(kba.getKeyDescription(), kba.getKeyCode(), kba.getKeyCategory());
-//            keyUse = new OverrideKeyBinding(kbu.getKeyDescription(), kbu.getKeyCode(), kbu.getKeyCategory());
-//
-//
-//            mc.gameSettings.keyBindForward = keyUp;
-//            mc.gameSettings.keyBindBack = keyDown;
-//            mc.gameSettings.keyBindLeft = keyLeft;
-//            mc.gameSettings.keyBindRight = keyRight;
-//            mc.gameSettings.keyBindJump = keyJump;
-//            mc.gameSettings.keyBindAttack = keyAttack;
-//            mc.gameSettings.keyBindUseItem = keyUse;
-//        }
-//        else {
-//            keyUp = new OverrideKeyBinding(null, -1, null);
-//            keyDown = new OverrideKeyBinding(null, -1, null);
-//            keyLeft = new OverrideKeyBinding(null, -1, null);
-//            keyRight = new OverrideKeyBinding(null, -1, null);
-//            keyJump = new OverrideKeyBinding(null, -1, null);
-//            keyAttack = new OverrideKeyBinding(null, -1, null);
-//            keyUse = new OverrideKeyBinding(null, -1, null);
-//        }
+        keyUp = overrideKeyBinding(mc.gameSettings.keyBindForward);
+        keyDown = overrideKeyBinding(mc.gameSettings.keyBindBack);
+        keyLeft = overrideKeyBinding(mc.gameSettings.keyBindLeft);
+        keyRight = overrideKeyBinding(mc.gameSettings.keyBindRight);
+        keyJump = overrideKeyBinding(mc.gameSettings.keyBindJump);
+        keyAttack = overrideKeyBinding(mc.gameSettings.keyBindAttack);
+        keyUse = overrideKeyBinding(mc.gameSettings.keyBindUseItem);
+        keyInventory = overrideKeyBinding(mc.gameSettings.keyBindInventory);
+        keySneak = overrideKeyBinding(mc.gameSettings.keyBindInventory);
+        keySprint = overrideKeyBinding(mc.gameSettings.keyBindSprint);
+        keyDrop = overrideKeyBinding(mc.gameSettings.keyBindDrop);
+        keyPickBlock = overrideKeyBinding(mc.gameSettings.keyBindPickBlock);
+        keyScreenshot = overrideKeyBinding(mc.gameSettings.keyBindScreenshot);
+        keyPlayerList = overrideKeyBinding(mc.gameSettings.keyBindPlayerList);
+        keySpectatorOutlines = overrideKeyBinding(mc.gameSettings.keyBindSpectatorOutlines);
+        keys.add(keyUp); keys.add(keyDown); keys.add(keyLeft); keys.add(keyRight);
+        keys.add(keyJump); keys.add(keyAttack); keys.add(keyUse); keys.add(keyInventory);
+        keys.add(keySneak); keys.add(keySprint); keys.add(keyDrop); keys.add(keyPickBlock);
+        keys.add(keyScreenshot); keys.add(keyPlayerList); keys.add(keySpectatorOutlines);
+
+        if(OVERRIDE_KEYS) {
+            mc.gameSettings.keyBindForward = keyUp;
+            mc.gameSettings.keyBindBack = keyDown;
+            mc.gameSettings.keyBindLeft = keyLeft;
+            mc.gameSettings.keyBindRight = keyRight;
+            mc.gameSettings.keyBindJump = keyJump;
+            mc.gameSettings.keyBindAttack = keyAttack;
+            mc.gameSettings.keyBindUseItem = keyUse;
+            mc.gameSettings.keyBindInventory = keyInventory;
+            mc.gameSettings.keyBindSneak = keySneak;
+            mc.gameSettings.keyBindDrop = keyDrop;
+            mc.gameSettings.keyBindPickBlock = keyPickBlock;
+            mc.gameSettings.keyBindScreenshot = keyScreenshot;
+            mc.gameSettings.keyBindPlayerList = keyPlayerList;
+            mc.gameSettings.keyBindSpectatorOutlines = keySpectatorOutlines;
+        }
     }
 
     public long lastUpdatedPlayerTick;
     public void playerTick() {
         lastUpdatedPlayerTick = Minecraft.getSystemTime();
+        for(OverrideKeyBinding key: keys) {
+            key.check();
+        }
     }
 
     public void renderTick() {
@@ -106,10 +95,7 @@ public class PlayerController {
     }
 
     public void use() {
-        keyUse.press();
-    }
-    public void unUse() {
-        keyUse.unpress();
+        keyUse.pressFor(300);
     }
 
     public void openInventory() {
@@ -119,7 +105,6 @@ public class PlayerController {
         //System.out.println("Left");
         keyLeft.press();
     }
-
     public void unleft() {
         keyLeft.unpress();
     }
@@ -158,7 +143,6 @@ public class PlayerController {
     public void jump() {
         keyJump.press();
     }
-
     public void unjump() {
         keyJump.unpress();
     }
@@ -166,7 +150,6 @@ public class PlayerController {
     public void attack() {
         keyAttack.press();
     }
-
     public void unattack() {
         keyAttack.unpress();
     }
@@ -238,7 +221,6 @@ public class PlayerController {
         lookY = y;
         lookZ = z;
     }
-
     public void unlook() {
         isLooking = false;
     }

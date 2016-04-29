@@ -1,5 +1,6 @@
 package edu.utulsa.masters.mcagent.overrides;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 
 /**
@@ -28,6 +29,19 @@ public class OverrideKeyBinding extends KeyBinding {
         pressed = false;
     }
 
-    int timePressed = 0;
-    public void pressFor(int ticks) { }
+    boolean timed = false;
+    long timePressed = 0;
+    int delay = 0;
+    public void pressFor(int ticks) {
+        press();
+        this.timePressed = Minecraft.getSystemTime() + ticks;
+        this.timed = true;
+    }
+
+    public void check() {
+        if(timed && Minecraft.getSystemTime() > timePressed) {
+            timed = false;
+            unpress();
+        }
+    }
 }

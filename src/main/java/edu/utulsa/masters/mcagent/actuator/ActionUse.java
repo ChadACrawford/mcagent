@@ -21,7 +21,6 @@ public class ActionUse extends PlayerControllerAction {
     }
 
     int stage = 0;
-    long lastUpdateTime = 0;
     @Override
     protected void performAction() {
         if(stage == 0) {
@@ -29,12 +28,10 @@ public class ActionUse extends PlayerControllerAction {
             pc.doLook();
             if(pc.dPitch < 0.1 && pc.dYaw < 0.1) {
                 pc.use();
-                lastUpdateTime = pc.lastUpdatedPlayerTick;
                 stage++;
             }
         } else if (stage == 1) {
-            if(lastUpdateTime < pc.lastUpdatedPlayerTick + 300) {
-                pc.unUse();
+            if(!pc.keyUse.isPressed()) {
                 stage++;
                 status = ControllerStatus.FINISHED;
             }
