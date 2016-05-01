@@ -43,6 +43,8 @@ dependencies {
   compile 'junit:junit:4.12'
 
   compile 'com.github.davidmoten:rtree:0.7.5'
+
+  compile 'org.choco-solver:choco-solver:3.3.3'
 }
 
 processResources
