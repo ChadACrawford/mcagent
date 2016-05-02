@@ -9,6 +9,13 @@ import net.minecraft.item.Item;
 public abstract class Operator {
     public abstract PlayerState act(PlayerState s);
 
+    public static class NOOP extends Operator {
+        @Override
+        public PlayerState act(PlayerState s) {
+            return s.copy();
+        }
+    }
+
     public static class MineBlock extends Operator {
         Variable.Block block;
         Variable.Item item;
@@ -67,13 +74,16 @@ public abstract class Operator {
 
         @Override
         public PlayerState act(PlayerState s) {
-            PlayerState ns = new PlayerState();
+            PlayerState ns = s.copy();
             Variable.Item craftingTable = new Variable.Item(Item.getItemFromBlock(Blocks.crafting_table));
             if(ns.itemAmount(craftingTable) <= 0) {
                 return null;
             }
             ns.subItem(craftingTable, new Variable.Integer(1));
+            ns.placeWorkbench();
             return ns;
         }
+
+        public String toString() { return "place-workbench"; }
     }
 }

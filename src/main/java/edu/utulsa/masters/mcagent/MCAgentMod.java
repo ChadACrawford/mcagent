@@ -47,7 +47,7 @@ public class MCAgentMod {
 
         AgentPlanner planner = new AgentPlanner();
         // create a workbench
-        Task goal = new Task("get-item", new Variable.Item(Item.getItemById(54)), new Variable.Integer(1));
+        Task goal = new Task("get-item", new Variable.Item(Item.getItemById(58)), new Variable.Integer(1));
         LinkedList<Operator> plan = planner.plan(goal);
 
         if(plan != null && !plan.isEmpty()) {

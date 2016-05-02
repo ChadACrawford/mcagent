@@ -37,6 +37,9 @@ public class PlayerInventory {
             if(recipe instanceof IRecipe) {
                 recipes.add(new RecipeHelper((IRecipe)recipe));
             }
+            else {
+                System.out.println(recipe);
+            }
         }
     }
 

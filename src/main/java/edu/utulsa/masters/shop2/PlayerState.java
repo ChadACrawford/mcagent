@@ -29,7 +29,7 @@ public class PlayerState {
 
     protected ItemStack getStack(Item item) {
         for(ItemStack stack: items) {
-            if(item.equals(stack.getItem())) {
+            if(Item.getIdFromItem(item) == Item.getIdFromItem(stack.getItem())) {
                 return stack;
             }
         }

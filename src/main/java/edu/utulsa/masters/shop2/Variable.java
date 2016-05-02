@@ -94,7 +94,7 @@ public abstract class Variable {
 
         @Override
         public String toString() {
-            return String.format("%d", net.minecraft.block.Block.getIdFromBlock(block));
+            return block.getUnlocalizedName();
         }
     }
 
@@ -113,9 +113,18 @@ public abstract class Variable {
             return isSet() ? new Item(item) : new Item();
         }
 
+        protected int getID() {
+            return net.minecraft.item.Item.getIdFromItem(item);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof Item && ((Item)o).getID() == getID();
+        }
+
         @Override
         public String toString() {
-            return String.format("%d", net.minecraft.item.Item.getIdFromItem(item));
+            return item.getUnlocalizedName();
         }
     }
 }

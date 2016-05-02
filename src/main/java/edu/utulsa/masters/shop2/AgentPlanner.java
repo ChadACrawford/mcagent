@@ -28,6 +28,9 @@ public class AgentPlanner {
     private static void addRecipe(RecipeHelper recipe) {
         if(recipe.result == null || recipe.required.length <= 0 || recipe.requiredAmounts.length <= 0)
             return;
+        if(Item.getIdFromItem(recipe.result.getItem()) == 54) {
+            System.out.println("Hi");
+        }
         int numIngedients = recipe.requiredAmounts.length;
         Variable.Boolean workbenchRequired = new Variable.Boolean(recipe.required.length > 4);
         Variable.Item[] requiredItems = new Variable.Item[numIngedients];
@@ -67,6 +70,7 @@ public class AgentPlanner {
             addMethod(new Method.GetItemMine(block, item, amount));
         }
 
+        addMethod(new Method.CraftAndPlaceWorkbench());
         addMethod(new Method.PlaceWorkbench());
     }
 

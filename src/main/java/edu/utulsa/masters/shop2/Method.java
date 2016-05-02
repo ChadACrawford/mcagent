@@ -83,7 +83,7 @@ public abstract class Method {
             Variable.Item argItem = (Variable.Item)args[0];
             Variable.Integer count = (Variable.Integer)args[1];
 
-            if(!argItem.item.equals(item.item)) return null;
+            if(!argItem.equals(item)) return null;
 
             Variable.Integer total = new Variable.Integer(count.value * amount.value);
             return new Operator.MineBlock(block, item, total);
@@ -122,12 +122,12 @@ public abstract class Method {
                 amount.assign(0);
             }
 
-            if(workbenchRequired.value && !state.workbenchPlaced || !item.item.equals(result.item)) {
+            if(!item.equals(result)) {
                 return null;
             }
 
             int numRepeats = amount.value / resultAmount.value;
-            if(resultAmount.value < amount.value) numRepeats++;
+            if(resultAmount.value < amount.value || numRepeats == 0) numRepeats++;
 
             Variable.Integer[] needed = new Variable.Integer[required.length];
             Condition[] conditions = new Condition[required.length];
@@ -146,7 +146,7 @@ public abstract class Method {
             if(!r) return null;
 
             int windex = (workbenchRequired.value ? 1 : 0);
-            Task[] tasks = new Task[required.length + 1];
+            Task[] tasks = new Task[required.length + 1 + windex];
             if(workbenchRequired.value) {
                 tasks[0] = new Task("place-workbench");
             }
@@ -189,7 +189,7 @@ public abstract class Method {
             Variable.Item item = (Variable.Item)args[0];
             Variable.Integer amount = (Variable.Integer)args[1];
 
-            if(workbenchRequired.value && !state.workbenchPlaced || !item.item.equals(result.item)) {
+            if(workbenchRequired.value && !state.workbenchPlaced || !item.equals(result)) {
                 return null;
             }
 
@@ -216,6 +216,25 @@ public abstract class Method {
         }
     }
 
+    public static class CraftAndPlaceWorkbench extends Compound {
+        public CraftAndPlaceWorkbench() {
+            super("place-workbench", 2);
+        }
+
+        @Override
+        public Task[] getSubtasks(PlayerState state, Variable... args) {
+            if(state.isWorkbenchPlaced()) return null;
+
+            Variable.Item workbench = new Variable.Item(Item.getItemFromBlock(Blocks.crafting_table));
+            Variable.Integer amount = new Variable.Integer(1);
+
+            return new Task[] {
+                    new Task("get-item", workbench, amount),
+                    new Task("place-workbench")
+            };
+        }
+    }
+
     public static class PlaceWorkbench extends Primitive {
         public PlaceWorkbench() {
             super("place-workbench", 0);
@@ -223,6 +242,8 @@ public abstract class Method {
 
         @Override
         public Operator getOperator(PlayerState state, Variable... args) {
+            if(state.isWorkbenchPlaced()) return null;
+
             Variable.Item workbench = new Variable.Item(Item.getItemFromBlock(Blocks.crafting_table));
             Variable.Integer amount = new Variable.Integer(1);
 
