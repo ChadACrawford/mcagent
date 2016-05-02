@@ -40,6 +40,10 @@ public class PlayerInventory {
         }
     }
 
+    public static List<RecipeHelper> getRecipes() {
+        return recipes;
+    }
+
     public PlayerInventory(PlayerController pc) {
         this.pc = pc;
         this.playerContainer = (ContainerPlayer)pc.getPlayer().inventoryContainer;

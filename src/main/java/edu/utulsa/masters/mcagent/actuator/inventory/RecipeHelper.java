@@ -1,34 +1,54 @@
 package edu.utulsa.masters.mcagent.actuator.inventory;
 
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by chad on 4/27/16.
  */
 public class RecipeHelper {
-    IRecipe recipe;
-    ItemStack[] required;
-    ItemStack[] requiredAmounts;
-    ItemStack result;
+    public IRecipe recipe;
+    public ItemStack[] required;
+    public ItemStack[] requiredAmounts;
+    public ItemStack result;
 
     public RecipeHelper(IRecipe recipe) {
         this.recipe = recipe;
 
+        this.result = recipe.getRecipeOutput();
+
+        if(result != null && Item.getIdFromItem(result.getItem()) == 54) {
+            System.out.println("hi");
+        }
+
         if(recipe instanceof ShapedRecipes) {
             ShapedRecipes r = (ShapedRecipes)recipe;
             this.required = r.recipeItems;
-            this.result = r.getRecipeOutput();
+        }
+        else if(recipe instanceof ShapedOreRecipe) {
+            ShapedOreRecipe r = (ShapedOreRecipe)recipe;
+            Object[] input = r.getInput();
+            this.required = new ItemStack[input.length];
+            for(int i = 0; i < input.length; i++) {
+                if(input[i] instanceof ItemStack) {
+                    this.required[i] = (ItemStack) input[i];
+                }
+                else if(input[i] instanceof List) {
+                    this.required[i] = (ItemStack)((List) input[i]).get(0);
+                }
+            }
         }
         else {
             required = new ItemStack[0];
-            result = null;
         }
         setRequiredAmounts();
     }
@@ -43,7 +63,7 @@ public class RecipeHelper {
             if(stack == null) continue;
             String itemName = stack.getItem().getUnlocalizedName();
             if( !items.containsKey(itemName) ) {
-                items.put(itemName, new ItemStack(stack.getItem()));
+                items.put(itemName, new ItemStack(stack.getItem(), 0));
             }
             items.get(itemName).stackSize += stack.stackSize;
         }

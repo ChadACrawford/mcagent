@@ -2,8 +2,14 @@ package edu.utulsa.masters.mcagent;
 import edu.utulsa.masters.mcagent.actuator.PlayerController;
 import edu.utulsa.masters.mcagent.actuator.inventory.PlayerInventory;
 import edu.utulsa.masters.mcagent.overrides.OverrideMouseHelper;
+import edu.utulsa.masters.shop2.AgentPlanner;
+import edu.utulsa.masters.shop2.Operator;
+import edu.utulsa.masters.shop2.Task;
+import edu.utulsa.masters.shop2.Variable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -12,6 +18,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.LinkedList;
 
 
 /**
@@ -35,7 +43,21 @@ public class MCAgentMod {
         PlayerController.setKeyBindings();
         PlayerInventory.loadRecipes();
         Minecraft.getMinecraft().mouseHelper = new OverrideMouseHelper();
+        AgentPlanner.initialize();
 
+        AgentPlanner planner = new AgentPlanner();
+        // create a workbench
+        Task goal = new Task("get-item", new Variable.Item(Item.getItemById(54)), new Variable.Integer(1));
+        LinkedList<Operator> plan = planner.plan(goal);
+
+        if(plan != null && !plan.isEmpty()) {
+            for (Operator o : plan) {
+                System.out.println(o);
+            }
+        }
+        else {
+            System.out.println("Darn");
+        }
         MCAgentMod mc = new MCAgentMod();
         FMLCommonHandler.instance().bus().register(mc);
         MinecraftForge.EVENT_BUS.register(mc);
@@ -54,6 +76,9 @@ public class MCAgentMod {
         if(!agent.isAlive()) {
             System.out.println(agent.id);
             agent.start();
+        }
+        else {
+            System.out.println("This sucks!");
         }
         activeAgent = agent;
     }
