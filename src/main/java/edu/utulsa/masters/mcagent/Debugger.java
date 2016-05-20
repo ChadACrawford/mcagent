@@ -59,7 +59,7 @@ public class Debugger {
     }
 
     public void errorf(String format, Object... s) {
-        info(String.format(format, s));
+        error(String.format(format, s));
     }
 
     public void info(String msg) {

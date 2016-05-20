@@ -1,5 +1,6 @@
 package edu.utulsa.masters.mcagent.overrides;
 
+import edu.utulsa.masters.mcagent.actuator.PlayerController;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 
@@ -14,12 +15,20 @@ public class OverrideKeyBinding extends KeyBinding {
     boolean pressed = false;
     @Override
     public boolean isKeyDown() {
-        return pressed;
+        if(PlayerController.doOverrideKeys) {
+            return pressed;
+        } else {
+            return super.isKeyDown();
+        }
     }
 
     @Override
     public boolean isPressed() {
-        return pressed;
+        if(PlayerController.doOverrideKeys) {
+            return pressed;
+        } else {
+            return super.isPressed();
+        }
     }
 
     public void press() {
@@ -29,19 +38,17 @@ public class OverrideKeyBinding extends KeyBinding {
         pressed = false;
     }
 
-    boolean timed = false;
-    long timePressed = 0;
     int delay = 0;
     public void pressFor(int ticks) {
         press();
-        this.timePressed = Minecraft.getSystemTime() + ticks;
-        this.timed = true;
+        //this.timePressed = Minecraft.getSystemTime() + ticks;
+        //this.timed = true;
     }
 
-    public void check() {
-        if(timed && Minecraft.getSystemTime() > timePressed) {
-            timed = false;
-            unpress();
+    public void tick() {
+        if(delay > 0) {
+            delay--;
+            if(delay == 0) unpress();
         }
     }
 }

@@ -1,6 +1,7 @@
 package edu.utulsa.masters.mcagent.actuator;
 
 import edu.utulsa.masters.mcagent.actuator.inventory.PlayerInventory;
+import edu.utulsa.masters.mcagent.overrides.OverrideEntityPlayerSP;
 import edu.utulsa.masters.mcagent.overrides.OverrideKeyBinding;
 import edu.utulsa.masters.mcagent.util.WorldTools;
 import net.minecraft.client.Minecraft;
@@ -19,13 +20,14 @@ import java.util.List;
  */
 public class PlayerController {
     private static PlayerController instance = null;
-    private final EntityPlayerSP player;
+    private final OverrideEntityPlayerSP player;
     private final World world;
     public final PlayerInventory inventory;
+    public static boolean doOverrideKeys = true;
 
-    public PlayerController(World world, EntityPlayerSP player) {
+    public PlayerController(World world, OverrideEntityPlayerSP player) {
         this.world = world;
-        this.player = player;
+        this.player = new OverrideEntityPlayerSP(player);
         this.inventory = new PlayerInventory(this);
     }
 
@@ -52,7 +54,7 @@ public class PlayerController {
         keyAttack = overrideKeyBinding(mc.gameSettings.keyBindAttack);
         keyUse = overrideKeyBinding(mc.gameSettings.keyBindUseItem);
         keyInventory = overrideKeyBinding(mc.gameSettings.keyBindInventory);
-        keySneak = overrideKeyBinding(mc.gameSettings.keyBindInventory);
+        keySneak = overrideKeyBinding(mc.gameSettings.keyBindSneak);
         keySprint = overrideKeyBinding(mc.gameSettings.keyBindSprint);
         keyDrop = overrideKeyBinding(mc.gameSettings.keyBindDrop);
         keyPickBlock = overrideKeyBinding(mc.gameSettings.keyBindPickBlock);
@@ -86,8 +88,25 @@ public class PlayerController {
     public void playerTick() {
         lastUpdatedPlayerTick = Minecraft.getSystemTime();
         for(OverrideKeyBinding key: keys) {
-            key.check();
+            key.tick();
         }
+        updateVelocity();
+    }
+
+    Vec3 lastPosition;
+    double currentVelocity = 0;
+    public void updateVelocity() {
+        if(lastPosition == null) {
+            lastPosition = player.getPositionVector();
+            return;
+        }
+
+        currentVelocity = lastPosition.distanceTo(player.getPositionVector());
+        lastPosition = player.getPositionVector();
+    }
+
+    public double getCurrentVelocity() {
+        return currentVelocity;
     }
 
     public void renderTick() {
@@ -99,35 +118,65 @@ public class PlayerController {
     }
 
     public void openInventory() {
+        keyInventory.pressFor(5);
+    }
+
+    public void sneak() {
+        keySneak.press();
+        keySprint.unpress();
+    }
+    public void sprint() {
+        keySprint.press();
+        keySneak.unpress();
+    }
+    public void walk() {
+        keySprint.unpress();
+        keySneak.unpress();
     }
 
     public void left() {
+        left(1);
+    }
+    public void left(float amount) {
         //System.out.println("Left");
-        keyLeft.press();
+        //keyLeft.press();
+        player.moveStrafe = amount;
     }
     public void unleft() {
         keyLeft.unpress();
     }
 
     public void right() {
+        right(1);
+    }
+    public void right(float amount) {
         //System.out.println("Right");
-        keyRight.press();
+        //keyRight.press();
+        player.moveStrafe = -amount;
     }
     public void unright() {
         keyRight.unpress();
     }
 
     public void forward() {
+        forward(1);
+    }
+    public void forward(float amount) {
         //System.out.println("Forward");
-        keyUp.press();
+        //keyUp.press();
+        player.moveForward = amount;
     }
     public void unforward(){
         keyUp.unpress();
     }
 
     public void back() {
+        back(1);
+    }
+    public void back(float amount) {
         //System.out.println("Back");
-        keyDown.press();
+        //keyDown.press();
+        player.moveForward = -amount;
     }
     public void unback() {
         keyDown.unpress();
@@ -141,7 +190,7 @@ public class PlayerController {
     }
 
     public void jump() {
-        keyJump.press();
+        keyJump.pressFor(50);
     }
     public void unjump() {
         keyJump.unpress();
@@ -155,6 +204,8 @@ public class PlayerController {
     }
 
     public void unpressAll() {
+        player.moveForward = 0;
+        player.moveStrafe = 0;
         keyUp.unpress();
         keyDown.unpress();
         keyLeft.unpress();
@@ -163,9 +214,15 @@ public class PlayerController {
         keyAttack.unpress();
     }
 
-    public double moveTo(double x, double y, double z) {
+    public double moveTo(final double x, final double y, final double z) {
         World w = getWorld();
         Vec3 o = player.getLookVec();
+
+//        player.movementInput.
+
+        class MoveVector {
+            double x, y, z;
+        }
 
         Vector2d toVec = new Vector2d(x - player.posX, z - player.posZ);
         Vector2d forwardVec = new Vector2d(o.xCoord, o.zCoord);
@@ -176,38 +233,44 @@ public class PlayerController {
         leftVec.normalize();
         bothVec.normalize();
 
+        double dist = player.getPositionVector().distanceTo(new Vec3(x, y, z));
+        float offset = 1;
+        if(getCurrentVelocity() > dist) {
+            offset = (float)dist;
+        }
         double projF = forwardVec.dot(toVec),
                 projL = leftVec.dot(toVec),
                 projB = bothVec.dot(toVec);
 
         unpressAll();
         if(Math.abs(projB) > Math.abs(projF) && Math.abs(projB) > Math.abs(projL)) {
-            if(projF > 0) forward();
-            else back();
+            if(projF > 0) forward(offset);
+            else back(offset);
 
-            if(projL > 0) left();
-            else right();
+            if(projL > 0) left(offset);
+            else right(offset);
         }
         else if(Math.abs(projF) > Math.abs(projL)) {
-            if(projF > 0) forward();
-            else back();
+            if(projF > 0) forward(offset);
+            else back(offset);
         }
         else {
-            if(projL > 0) left();
-            else right();
+            if(projL > 0) left(offset);
+            else right(offset);
         }
 
-        if(player.isInWater() && player.getPosition().getY() <= y) {
+        if(player.isInWater() && player.getPosition().getY() < y) {
             jump();
         }
-        else if(WorldTools.isBlocked(w, player.getPosition(), new BlockPos(x, y, z), 1)) {
+        else if(player.getPositionVector().yCoord < y &&
+                !WorldTools.isValidPath(w, player.getPositionVector(), new Vec3(x, y, z))) {
             jump();
         }
         else {
             unjump();
         }
 
-        return player.getPositionVector().distanceTo(new Vec3(x, y, z));
+        return dist;
     }
 
     public static final double ACCEL = 5.0;

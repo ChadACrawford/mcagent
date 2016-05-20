@@ -45,19 +45,19 @@ public class MCAgentMod {
         Minecraft.getMinecraft().mouseHelper = new OverrideMouseHelper();
         AgentPlanner.initialize();
 
-        AgentPlanner planner = new AgentPlanner();
-        // create a workbench
-        Task goal = new Task("get-item", new Variable.Item(Item.getItemById(54)), new Variable.Integer(1));
-        LinkedList<Operator> plan = planner.plan(goal);
-
-        if(plan != null && !plan.isEmpty()) {
-            for (Operator o : plan) {
-                System.out.println(o);
-            }
-        }
-        else {
-            System.out.println("Darn");
-        }
+//        AgentPlanner planner = new AgentPlanner();
+//        // create a workbench
+//        Task goal = new Task("get-item", new Variable.Item(Item.getItemById(54)), new Variable.Integer(1));
+//        LinkedList<Operator> plan = planner.plan(goal);
+//
+//        if(plan != null && !plan.isEmpty()) {
+//            for (Operator o : plan) {
+//                System.out.println(o);
+//            }
+//        }
+//        else {
+//            System.out.println("Darn");
+//        }
         MCAgentMod mc = new MCAgentMod();
         FMLCommonHandler.instance().bus().register(mc);
         MinecraftForge.EVENT_BUS.register(mc);
@@ -65,35 +65,25 @@ public class MCAgentMod {
 
     @SubscribeEvent
     public void onPlayerUpdate(TickEvent.PlayerTickEvent e) {
-        Minecraft.getMinecraft().gameSettings.pauseOnLostFocus = false;
-        Minecraft.getMinecraft().inGameHasFocus = false;
         EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+
         //System.out.println(player);
-        if(player == null) {
-            return;
+
+        if(activeAgent == null) {
+            activeAgent = new PlayerCalibratorAgent(player);
+            activeAgent.prepare();
+            activeAgent.start();
         }
-        MCAgent agent = MCAgent.getAgent(player);
-        if(!agent.isAlive()) {
-            System.out.println(agent.id);
-            agent.start();
+
+        if(!activeAgent.isCurrentPlayer()) {
+            activeAgent.kill();
+            activeAgent = new PlayerCalibratorAgent(player);
         }
-        else {
-            System.out.println("This sucks!");
+
+        if(!activeAgent.isAlive()) {
+            activeAgent = null;
         }
-        activeAgent = agent;
     }
-
-    @SubscribeEvent
-    public void onRenderTick(TickEvent.RenderTickEvent e) {
-        if(activeAgent == null) return;
-
-        activeAgent.renderEvent();
-    }
-
-//    @SubscribeEvent
-//    public void onWorldLoad(WorldEvent.Load e) {
-//
-//    }
 
     @Override
     public String toString() {

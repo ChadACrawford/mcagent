@@ -6,6 +6,8 @@ import edu.utulsa.masters.mcagent.actuator.movement.Path;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.BlockPos;
 
+import java.util.LinkedList;
+
 /**
  * Created by Chad on 5/24/2015.
  */
@@ -20,7 +22,7 @@ public class ActionMove extends PlayerControllerAction {
         this.moveX = moveX;
         this.moveY = moveY;
         this.moveZ = moveZ;
-        if(player.getPosition().distanceSq(moveX, moveY, moveZ) > 900)
+        if(player.getPosition().distanceSq(moveX, moveY, moveZ) > 10000)
             status = ControllerStatus.FAILURE;
         else {
             status = ControllerStatus.WAITING;
@@ -31,6 +33,10 @@ public class ActionMove extends PlayerControllerAction {
             }
             path.debug();
         }
+    }
+
+    public LinkedList<BlockPos> getPath() {
+        return path.getPath();
     }
 
     @Override

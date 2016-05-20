@@ -44,6 +44,10 @@ public class WorldTools {
         return true;
     }
 
+    public static BlockPos findSurface(World w, int x, int z) {
+        return WorldTools.findBelowSurface(w, new BlockPos(x, w.getHeight(), z));
+    }
+
     /**
      * Finds the first surface block (block with an air block above it) directly above p, assuming p is solid
      * @param w The world
@@ -325,13 +329,13 @@ public class WorldTools {
      * @param v Length of path to check
      * @return
      */
-    public static boolean isBlocked(World w, BlockPos from, BlockPos to, double v) {
-        double d = Math.sqrt(Math.pow(from.getX()-to.getX(),2)+Math.pow(from.getZ()-to.getZ(),2));
-        if(d < 1.0) return false;
-        double dx = (to.getX()-from.getX())/d/4, dz = (to.getZ()-from.getZ())/d/4;
-        for(int i = 0; i <= 4*(v+1); i++) {
-            if(!open(w, new BlockPos(from.getX()+i*dx,from.getY()-1,from.getZ()+i*dz),1)) return true;
-        }
-        return false;
-    }
+//    public static boolean isBlocked(World w, Vec3 from, Vec3 to, double v) {
+//        double d = Math.sqrt(Math.pow(from.xCoord-to.xCoord,2)+Math.pow(from.zCoord-to.zCoord,2));
+//        if(d < 1.0) return false;
+//        double dx = (to.getX()-from.getX())/d/4, dz = (to.getZ()-from.getZ())/d/4;
+//        for(int i = 0; i <= 4*(v+1); i++) {
+//            if(!open(w, new BlockPos(from.getX()+i*dx,from.getY()-1,from.getZ()+i*dz),1)) return true;
+//        }
+//        return false;
+//    }
 }

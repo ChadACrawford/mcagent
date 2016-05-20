@@ -6,6 +6,15 @@ import net.minecraft.util.MouseHelper;
  * Created by chad on 4/26/16.
  */
 public class OverrideMouseHelper extends MouseHelper {
-    public void grabMouseCursor() {}
-    public void ungrabMouseCursor() {}
+    public static boolean override = true;
+    public void grabMouseCursor() {
+        if(!override) {
+            super.grabMouseCursor();
+        }
+    }
+    public void ungrabMouseCursor() {
+        if(!override) {
+            super.ungrabMouseCursor();
+        }
+    }
 }

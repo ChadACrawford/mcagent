@@ -12,7 +12,7 @@ public class ActionMine extends PlayerControllerAction {
     BlockPos block;
     Vec3 lookVec;
 
-    protected ActionMine(PlayerController pc, BlockPos block) {
+    public ActionMine(PlayerController pc, BlockPos block) {
         super(pc);
         this.block = block;
         this.lookVec = new Vec3(block.getX() + 0.5, block.getY() + 0.5, block.getZ() + 0.5);

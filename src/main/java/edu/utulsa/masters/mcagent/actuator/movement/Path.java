@@ -22,7 +22,7 @@ public class Path {
     protected LinkedList<BlockPos> path;
     protected Vec3[] refinedPath;
 
-    private static final double REFINE_BOUNDARY = 0.02;
+    private static final double REFINE_BOUNDARY = 0.3;
 
     private Path(World w, LinkedList<BlockPos> path) {
         this.w = w;
@@ -33,18 +33,22 @@ public class Path {
         return refinedPath != null;
     }
 
+    public LinkedList<BlockPos> getPath() {
+        return path;
+    }
+
     public void refine() {
         BlockPos start = path.getFirst();
-        refinedPath = new Vec3[path.size()];
+        LinkedList<Vec3> rPath = new LinkedList<Vec3>();
 
         ListIterator<BlockPos> iterator = path.listIterator(path.size());
 
-        int i = path.size()-1;
+        //int i = path.size()-1;
         BlockPos b1 = iterator.previous();
-        refinedPath[i] = new Vec3(b1.getX() + 0.5, b1.getY() + 1, b1.getZ() + 0.5);
+        rPath.add(new Vec3(b1.getX() + 0.5, b1.getY() + 1, b1.getZ() + 0.5));
         while(iterator.hasPrevious()) {
-            i--;
-            Vec3 p = refinedPath[i+1];
+            //i--;
+            Vec3 p = rPath.getFirst();
             BlockPos b2 = iterator.previous();
 
             double xLeft = b2.getX() + REFINE_BOUNDARY, xRight = b2.getX() + 1 - REFINE_BOUNDARY,
@@ -60,11 +64,26 @@ public class Path {
             else if(p.zCoord > zRight) zCoord = zRight;
             else zCoord = p.zCoord;
 
-            refinedPath[i] = new Vec3(xCoord, b2.getY() + 1, zCoord);
+            rPath.addFirst(new Vec3(xCoord, b2.getY() + 1, zCoord));
 
-            b1 = b2;
+            //b1 = b2;
         }
-        refinedPath[0] = new Vec3(start.getX() + 0.5, start.getY() + 1, start.getZ() + 0.5);
+        rPath.addFirst(new Vec3(start.getX() + 0.5, start.getY() + 1, start.getZ() + 0.5));
+
+//        //Forget this, I need to refine while traversing the path.
+//        LinkedList<Vec3> newRPath = new LinkedList<Vec3>();
+//        Vec3 last = rPath.getFirst();
+//        newRPath.add(last);
+//        for(Vec3 p: rPath) {
+//            if(p == rPath.getFirst()) continue;
+//            if(!WorldTools.isValidPath(w, newRPath.getLast(), p)) {
+//                newRPath.add(last);
+//            }
+//            last = p;
+//        }
+//        newRPath.add(rPath.getLast());
+
+        refinedPath = rPath.toArray(new Vec3[rPath.size()]);
     }
 
     public boolean isValidPath() {
@@ -114,25 +133,45 @@ public class Path {
     }
 
     public static Path compute(final World w, BlockPos start, final BlockPos end) {
+        return compute(w, start, end, false);
+    }
+
+    public static Path compute(final World w, BlockPos start, final BlockPos end, final boolean doDebug) {
         if(!isValidBlock(w, start) || !isValidBlock(w, end)) return null;
+        final Debugger debug = new Debugger(new Object());
 
         class BlockNode implements NodeEvaluatable<BlockNode> {
             BlockPos p;
             double f;
+            double h;
 
             BlockNode(BlockNode parent, BlockPos p) {
                 this.p = p;
-                if(parent != null) this.f = parent.f + h();
+                this.h = h();
+                if(parent != null) this.f = parent.f + computeF(parent.p);
                 else this.f = 0;
+                if(doDebug) {
+                    debug.format("BlockPos %15s: f: %8.6f h: %8.6f", p.toString(), f, h);
+                    debug.debugBlock(p, Block.getStateById(57));
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            public double computeF(BlockPos pp) {
+                return 0.9999 + (pp.getY() < p.getY() ? 1:0);
             }
 
             @Override
             public double f() {
-                return f;
+                return f + h;
             }
 
             double h() {
-                return Math.abs(end.getX()-p.getX()) + Math.abs(end.getY()-p.getY()) + Math.abs(end.getZ()+p.getZ());
+                return Math.abs(end.getX()-p.getX()) + Math.abs(end.getY()-p.getY()) + Math.abs(end.getZ()-p.getZ());
             }
 
             @Override
@@ -159,6 +198,8 @@ public class Path {
         LinkedList<BlockPos> path = new LinkedList<BlockPos>();
         for(BlockNode n: nodePath) path.add(n.p);
 
+        debug.reset();
+
         return new Path(w, path);
     }
 
@@ -180,12 +221,16 @@ public class Path {
             BlockPos b2 = b1.add(dxz[0], 0, dxz[1]);
             if(WorldTools.isSolid(w, b2) || WorldTools.isWaterBlock(w, b2)) {
                 if(isValidStep(w, b1, b2)) blocks.add(b2);
+                else {
+                    BlockPos b3 = b2.add(0,1,0);
+                    if(isValidStep(w, b1, b3)) blocks.add(b3);
+                }
             }
             else {
                 for(int i = 0; i < 4; i++) {
                     b2 = b2.add(0, -1, 0);
                     if(WorldTools.isSolid(w, b2) || WorldTools.isWaterBlock(w, b2)) {
-                        blocks.add(b2);
+                        if(isValidStep(w, b1, b2)) blocks.add(b2);
                         break;
                     }
                 }
@@ -216,6 +261,8 @@ public class Path {
      * @return Whether b1 -> b2 is a valid path.
      */
     public static boolean isValidStep(World w, BlockPos b1, BlockPos b2) {
+        if(!WorldTools.open(w, b1, 2) || !WorldTools.open(w, b2, 2)) return false;
+
         if(WorldTools.isSolid(w, b1)) {
             if(b1.getY() == b2.getY()) {
                 return WorldTools.isSolid(w, b2) || WorldTools.isWaterBlock(w, b2);
