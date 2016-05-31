@@ -63,25 +63,27 @@ public class MCAgentMod {
         MinecraftForge.EVENT_BUS.register(mc);
     }
 
+    public MCAgent genAgent(EntityPlayerSP player) {
+        return new PlayerCalibratorAgent(player);
+    }
+
     @SubscribeEvent
     public void onPlayerUpdate(TickEvent.PlayerTickEvent e) {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        if(e.phase == TickEvent.Phase.START) {
+            EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
 
-        //System.out.println(player);
+            //System.out.println(player);
 
-        if(activeAgent == null) {
-            activeAgent = new PlayerCalibratorAgent(player);
-            activeAgent.prepare();
-            activeAgent.start();
-        }
+            if (activeAgent == null || !activeAgent.isCurrentPlayer()) {
+                if(activeAgent != null) activeAgent.kill();
+                activeAgent = genAgent(player);
+                activeAgent.prepare();
+                activeAgent.start();
+            }
 
-        if(!activeAgent.isCurrentPlayer()) {
-            activeAgent.kill();
-            activeAgent = new PlayerCalibratorAgent(player);
-        }
-
-        if(!activeAgent.isAlive()) {
-            activeAgent = null;
+            if (!activeAgent.isAlive()) {
+                activeAgent = null;
+            }
         }
     }
 

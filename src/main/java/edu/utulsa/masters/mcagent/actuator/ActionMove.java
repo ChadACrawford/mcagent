@@ -2,7 +2,7 @@ package edu.utulsa.masters.mcagent.actuator;
 
 import edu.utulsa.masters.mcagent.ControllerStatus;
 import edu.utulsa.masters.mcagent.Debugger;
-import edu.utulsa.masters.mcagent.actuator.movement.Path;
+import edu.utulsa.masters.mcagent.actuator.Path;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.BlockPos;
 

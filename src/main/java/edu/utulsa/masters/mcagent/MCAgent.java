@@ -1,25 +1,16 @@
 package edu.utulsa.masters.mcagent;
 
-import edu.utulsa.masters.mcagent.actuator.ActionMove;
 import edu.utulsa.masters.mcagent.actuator.PlayerController;
-import edu.utulsa.masters.mcagent.overrides.OverrideEntityPlayerSP;
 import edu.utulsa.masters.mcagent.overrides.OverrideMouseHelper;
-import edu.utulsa.masters.mcagent.util.WorldTools;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import javax.swing.text.html.parser.Entity;
-import java.util.HashMap;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This agent controllers a single MC player.
@@ -29,13 +20,13 @@ public abstract class MCAgent extends Thread {
     protected boolean overrideWindow = true;
     int id;
     World world;
-    OverrideEntityPlayerSP player;
+    EntityPlayerSP player;
     PlayerController pc;
     Random rand = new Random();
     Debugger debug = new Debugger(this);
 
     protected MCAgent(EntityPlayerSP player) {
-        this.player = new OverrideEntityPlayerSP(player);
+        this.player = player;
         this.world = player.getEntityWorld();
         this.pc = new PlayerController(world, this.player);
         this.id = idCount++;
@@ -130,6 +121,9 @@ public abstract class MCAgent extends Thread {
             OverrideMouseHelper.override = false;
             Minecraft.getMinecraft().gameSettings.pauseOnLostFocus = true;
             //Minecraft.getMinecraft().inGameHasFocus = true;
+        }
+        if(e.phase == TickEvent.Phase.START) {
+            pc.prePlayerTick();
         }
     }
 

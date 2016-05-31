@@ -1,9 +1,7 @@
 package edu.utulsa.masters.mcagent;
 
-import edu.utulsa.masters.mcagent.actuator.ActionMine;
 import edu.utulsa.masters.mcagent.actuator.ActionMove;
 import edu.utulsa.masters.mcagent.actuator.PlayerController;
-import edu.utulsa.masters.mcagent.actuator.movement.Path;
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.BlockPos;
@@ -11,11 +9,9 @@ import net.minecraft.util.IChatComponent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

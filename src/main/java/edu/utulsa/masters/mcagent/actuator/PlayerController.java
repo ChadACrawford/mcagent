@@ -1,13 +1,11 @@
 package edu.utulsa.masters.mcagent.actuator;
 
 import edu.utulsa.masters.mcagent.actuator.inventory.PlayerInventory;
-import edu.utulsa.masters.mcagent.overrides.OverrideEntityPlayerSP;
 import edu.utulsa.masters.mcagent.overrides.OverrideKeyBinding;
 import edu.utulsa.masters.mcagent.util.WorldTools;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
@@ -20,14 +18,14 @@ import java.util.List;
  */
 public class PlayerController {
     private static PlayerController instance = null;
-    private final OverrideEntityPlayerSP player;
+    private final EntityPlayerSP player;
     private final World world;
     public final PlayerInventory inventory;
     public static boolean doOverrideKeys = true;
 
-    public PlayerController(World world, OverrideEntityPlayerSP player) {
+    public PlayerController(World world, EntityPlayerSP player) {
         this.world = world;
-        this.player = new OverrideEntityPlayerSP(player);
+        this.player = player;
         this.inventory = new PlayerInventory(this);
     }
 
@@ -85,7 +83,7 @@ public class PlayerController {
     }
 
     public long lastUpdatedPlayerTick;
-    public void playerTick() {
+    public void prePlayerTick() {
         lastUpdatedPlayerTick = Minecraft.getSystemTime();
         for(OverrideKeyBinding key: keys) {
             key.tick();
@@ -135,48 +133,33 @@ public class PlayerController {
     }
 
     public void left() {
-        left(1);
-    }
-    public void left(float amount) {
         //System.out.println("Left");
-        //keyLeft.press();
-        player.moveStrafe = amount;
+        keyLeft.press();
+        //moveStrafe = amount;
     }
     public void unleft() {
         keyLeft.unpress();
     }
 
     public void right() {
-        right(1);
-    }
-    public void right(float amount) {
         //System.out.println("Right");
-        //keyRight.press();
-        player.moveStrafe = -amount;
+        keyRight.press();
     }
     public void unright() {
         keyRight.unpress();
     }
 
     public void forward() {
-        forward(1);
-    }
-    public void forward(float amount) {
         //System.out.println("Forward");
-        //keyUp.press();
-        player.moveForward = amount;
+        keyUp.press();
     }
     public void unforward(){
         keyUp.unpress();
     }
 
     public void back() {
-        back(1);
-    }
-    public void back(float amount) {
         //System.out.println("Back");
-        //keyDown.press();
-        player.moveForward = -amount;
+        keyDown.press();
     }
     public void unback() {
         keyDown.unpress();
@@ -204,8 +187,8 @@ public class PlayerController {
     }
 
     public void unpressAll() {
-        player.moveForward = 0;
-        player.moveStrafe = 0;
+        //player.moveForward = 0;
+        //player.moveStrafe = 0;
         keyUp.unpress();
         keyDown.unpress();
         keyLeft.unpress();
@@ -244,19 +227,19 @@ public class PlayerController {
 
         unpressAll();
         if(Math.abs(projB) > Math.abs(projF) && Math.abs(projB) > Math.abs(projL)) {
-            if(projF > 0) forward(offset);
-            else back(offset);
+            if(projF > 0) forward();
+            else back();
 
-            if(projL > 0) left(offset);
-            else right(offset);
+            if(projL > 0) left();
+            else right();
         }
         else if(Math.abs(projF) > Math.abs(projL)) {
-            if(projF > 0) forward(offset);
-            else back(offset);
+            if(projF > 0) forward();
+            else back();
         }
         else {
-            if(projL > 0) left(offset);
-            else right(offset);
+            if(projL > 0) left();
+            else right();
         }
 
         if(player.isInWater() && player.getPosition().getY() < y) {
@@ -286,6 +269,10 @@ public class PlayerController {
     }
     public void unlook() {
         isLooking = false;
+    }
+
+    public double dist(double x, double y, double z) {
+        return player.getPositionVector().distanceTo(new Vec3(x, y, z));
     }
 
     public void doLook() {

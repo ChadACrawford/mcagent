@@ -1,4 +1,4 @@
-package edu.utulsa.masters.mcagent.actuator.movement;
+package edu.utulsa.masters.mcagent.actuator;
 
 import edu.utulsa.masters.mcagent.Debugger;
 import edu.utulsa.masters.mcagent.actuator.PlayerController;
@@ -245,7 +245,7 @@ public class Path {
             while(WorldTools.isPassable(w, b3) && b3.getY() >= 0)
                 b3.add(0, -1, 0);
             if(WorldTools.isSolid(w, b3) || WorldTools.isPassable(w, b3)) {
-               if(isValidStep(w, b1, b3)) blocks.add(b3);
+                if(isValidStep(w, b1, b3)) blocks.add(b3);
             }
         }
 
