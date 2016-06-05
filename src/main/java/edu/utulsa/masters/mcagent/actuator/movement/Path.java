@@ -1,4 +1,4 @@
-package edu.utulsa.masters.mcagent.actuator;
+package edu.utulsa.masters.mcagent.actuator.movement;
 
 import edu.utulsa.masters.mcagent.Debugger;
 import edu.utulsa.masters.mcagent.actuator.PlayerController;
@@ -6,12 +6,10 @@ import edu.utulsa.masters.mcagent.util.WorldTools;
 import edu.utulsa.masters.search.NodeEvaluatable;
 import edu.utulsa.masters.search.TreeSearch;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import javax.vecmath.Point3i;
 import java.util.*;
 
 /**
@@ -22,7 +20,7 @@ public class Path {
     protected LinkedList<BlockPos> path;
     protected Vec3[] refinedPath;
 
-    private static final double REFINE_BOUNDARY = 0.3;
+    private static final double REFINE_BOUNDARY = 0.4;
 
     private Path(World w, LinkedList<BlockPos> path) {
         this.w = w;
@@ -86,6 +84,12 @@ public class Path {
         refinedPath = rPath.toArray(new Vec3[rPath.size()]);
     }
 
+    public Vec3[] getRefinedPath() {
+        if(!isRefined())
+            refine();
+        return refinedPath;
+    }
+
     public boolean isValidPath() {
         Iterator<BlockPos> iterator = path.iterator();
         BlockPos b1 = iterator.next();
@@ -100,31 +104,31 @@ public class Path {
         return true;
     }
 
-    int currentPosition = 0;
-    public boolean control(PlayerController pc) {
-        if(!isRefined()) {
-            refine();
-            System.out.println("Refined.");
-        }
-
-        if(currentPosition >= refinedPath.length) return true;
-
-        int lookPos = Math.min(refinedPath.length-1, currentPosition+2);
-        Vec3 lookVec = refinedPath[lookPos].addVector(0, 1, 0);
-
-        pc.look(lookVec.xCoord, lookVec.yCoord, lookVec.zCoord);
-
-        Vec3 p = refinedPath[currentPosition];
-        double d = pc.moveTo(p.xCoord, p.yCoord, p.zCoord);
-        if(d < 0.3) {
-            currentPosition++;
-        }
-        return false;
-    }
-
-    public void reset() {
-        currentPosition = 0;
-    }
+//    int currentPosition = 0;
+//    public boolean control(PlayerController pc) {
+//        if(!isRefined()) {
+//            refine();
+//            System.out.println("Refined.");
+//        }
+//
+//        if(currentPosition >= refinedPath.length) return true;
+//
+//        int lookPos = Math.min(refinedPath.length-1, currentPosition+2);
+//        Vec3 lookVec = refinedPath[lookPos].addVector(0, 1, 0);
+//
+//        pc.look(lookVec.xCoord, lookVec.yCoord, lookVec.zCoord);
+//
+//        Vec3 p = refinedPath[currentPosition];
+//        double d = pc.moveTo(p.xCoord, p.yCoord, p.zCoord);
+//        if(d < 0.3) {
+//            currentPosition++;
+//        }
+//        return false;
+//    }
+//
+//    public void reset() {
+//        currentPosition = 0;
+//    }
 
     Debugger debug;
     public void debug() {
@@ -227,11 +231,18 @@ public class Path {
                 }
             }
             else {
-                for(int i = 0; i < 4; i++) {
-                    b2 = b2.add(0, -1, 0);
-                    if(WorldTools.isSolid(w, b2) || WorldTools.isWaterBlock(w, b2)) {
-                        if(isValidStep(w, b1, b2)) blocks.add(b2);
-                        break;
+                if(WorldTools.isSolid(w, b2.add(0,1,0))) {
+                    BlockPos b3 = b2.add(0,1,0);
+                    if(isValidStep(w, b1, b3))
+                        blocks.add(b3);
+                }
+                else {
+                    for (int i = 0; i < 4; i++) {
+                        b2 = b2.add(0, -1, 0);
+                        if (WorldTools.isSolid(w, b2) || WorldTools.isWaterBlock(w, b2)) {
+                            if (isValidStep(w, b1, b2)) blocks.add(b2);
+                            break;
+                        }
                     }
                 }
             }

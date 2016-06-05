@@ -112,7 +112,7 @@ public abstract class MCAgent extends Thread {
 //    }
 
     @SubscribeEvent
-    public void onPlayerTick(TickEvent.PlayerTickEvent e) {
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if(overrideWindow) {
             OverrideMouseHelper.override = true;
             Minecraft.getMinecraft().gameSettings.pauseOnLostFocus = false;
@@ -122,7 +122,7 @@ public abstract class MCAgent extends Thread {
             Minecraft.getMinecraft().gameSettings.pauseOnLostFocus = true;
             //Minecraft.getMinecraft().inGameHasFocus = true;
         }
-        if(e.phase == TickEvent.Phase.START) {
+        if(event.phase == TickEvent.Phase.START) {
             pc.prePlayerTick();
         }
     }

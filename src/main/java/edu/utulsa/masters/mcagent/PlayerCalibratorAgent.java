@@ -9,6 +9,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +21,9 @@ public class PlayerCalibratorAgent extends MCAgent {
     public PlayerCalibratorAgent(EntityPlayerSP player) {
         super(player);
     }
+
+    private boolean active = false;
+    private Lock mutexTick = new ReentrantLock(true);
 
     private CountDownLatch latch = new CountDownLatch(1);
     @Override
@@ -35,9 +40,24 @@ public class PlayerCalibratorAgent extends MCAgent {
         overrideWindow = true;
         PlayerController.doOverrideKeys = true;
 
-        tickStage++;
+        nextTick();
 
-        startPos = player.getPositionVector();
+        debug.info("Walking test.");
+        speedTest(RunningType.WALKING);
+        jumpingTest(RunningType.WALKING);
+
+        debug.info("Sneaking test.");
+        speedTest(RunningType.SNEAKING);
+        jumpingTest(RunningType.SNEAKING);
+
+        debug.info("Sprinting test.");
+        speedTest(RunningType.SPRINTING);
+        jumpingTest(RunningType.SPRINTING);
+
+        GameInfo.saveData();
+
+        finish();
+
         latch = new CountDownLatch(1);
 
         try {
@@ -47,121 +67,177 @@ public class PlayerCalibratorAgent extends MCAgent {
         }
     }
 
-    int tickStage = 0;
+    Thread tickThread;
     @SubscribeEvent
-    public void onWorldTick(TickEvent.WorldTickEvent event) {
-        if(tickStage == 1) {
-            if(testJumpingDriver())
-                tickStage++;
-        }
-        else if(tickStage == 2) {
-            latch.countDown();
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        super.onPlayerTick(event);
+
+        if(event.phase == TickEvent.Phase.END) {
+            tickThread = Thread.currentThread();
+            if (active) {
+                continueThread();
+            }
         }
     }
 
-    Vec3 startPos;
+    private void nextTick() {
+//        if(tickThread == null) {
+        try {
+            synchronized (this) {
+                this.wait();
+            }
+        } catch(InterruptedException e) {}
+//        }
+//        else {
+//            swap(this, tickThread);
+//        }
+    }
 
-    JumpData[] jumpData;
-    int currentJumpStage = 0;
-    int subJumpStage = 0;
-    int startTicks;
-    Vec3 jumpToPos;
-    protected boolean testJumpingDriver() {
-        if(currentJumpStage >= 3) return false;
-
-        if(jumpData == null) {
-            jumpData = new JumpData[3];
-            jumpToPos = new Vec3(startPos.xCoord, startPos.yCoord, startPos.zCoord + 100);
-            for(int i = 0; i < 3; i++) jumpData[i] = new JumpData();
+    private void continueThread() {
+        synchronized (this) {
+            this.notify();
         }
+        while(this.getState() == State.RUNNABLE);
+        //swap(tickThread, this);
+    }
 
-        if(subJumpStage == 0) {
-            if(currentJumpStage == 0) {
-                debug.info("Testing walking.");
+    private void finish() {
+//        synchronized (tickThread) {
+//            tickThread.notify();
+//        }
+    }
+
+    private static void swap(Thread running, Thread toRun) {
+        try {
+            synchronized (toRun) {
+                toRun.notify();
             }
-            else if(currentJumpStage == 1) {
-                debug.info("Testing sprinting.");
+            synchronized (running) {
+                running.wait();
             }
-            else {
-                debug.info("Testing sneaking.");
-            }
-            startTicks = 1000;
-            //run to start point
-            double dist = pc.moveTo(startPos.xCoord, startPos.yCoord, startPos.zCoord);
-            if(dist < 0.1) {
-                subJumpStage++;
-            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        else if(subJumpStage == 1) {
-            if(currentJumpStage == 0) {
+    }
+
+    enum RunningType { WALKING, SPRINTING, SNEAKING }
+
+    protected void move(RunningType runType) {
+        switch(runType) {
+            case WALKING:
                 pc.walk();
-            }
-            else if(currentJumpStage == 1) {
+                break;
+            case SPRINTING:
                 pc.sprint();
-            }
-            else {
+                break;
+            case SNEAKING:
                 pc.sneak();
-            }
-            pc.forward();
-            debug.info(startTicks + "");
-            startTicks--;
-            if(startTicks <= 0) {
-                currentJumpStage++;
-            }
+                break;
         }
-        else if(subJumpStage == 2) {
-            debug.info("Stage 3");
-            if(currentJumpStage == 0) {
-                pc.walk();
-            }
-            else if(currentJumpStage == 1) {
-                pc.sprint();
-            }
-            else {
-                pc.sneak();
-            }
-            pc.forward();
-            if(testJumping(jumpData[currentJumpStage])) {
-                currentJumpStage++;
-                subJumpStage = 0;
-            }
-        }
-        return false;
     }
 
-    class JumpData {
-        Vec3 origPos;
-        Vec3 lastPos;
-        double velocity;
-        double distance;
-        double maxHeight;
-        int ticks;
-        int stage;
+    protected void speedTest(RunningType runType) {
+        move(runType);
+
+        pc.forward();
+
+        double velocity = 0;
+
+        for(int i = 0; i < 50; i++)
+            nextTick();
+
+        final int NUM_TICKS = 200;
+        for(int i = 0; i < NUM_TICKS; i++) {
+            nextTick();
+            velocity += pc.getCurrentVelocity();
+        }
+
+        switch(runType) {
+            case WALKING:
+                GameInfo.WALK_SPEED = velocity / NUM_TICKS;
+                break;
+            case SNEAKING:
+                GameInfo.SNEAK_SPEED = velocity / NUM_TICKS;
+                break;
+            case SPRINTING:
+                GameInfo.SPRINT_SPEED = velocity / NUM_TICKS;
+                break;
+        }
+
+        pc.stopMoving();
+
+        for(int i = 0; i < 50; i++) nextTick();
     }
-    protected boolean testJumping(JumpData current) {
-        current.ticks++;
-        current.velocity += pc.getCurrentVelocity();
-        if(current.stage == 0) { //when the player begins
-            pc.jump();
-            current.origPos = player.getPositionVector();
-            current.stage++;
+
+    protected void jumpingTest(RunningType runType) {
+        move(runType);
+
+        pc.forward();
+        // start running!
+        for(int i = 0; i < 50; i++) {
+            nextTick();
         }
-        else if(current.stage == 1) { //when the player starts falling
-            if(current.lastPos.yCoord > player.posY) {
-                current.maxHeight = current.lastPos.yCoord - current.origPos.yCoord;
-                current.stage++;
+
+        Vec3 origPos = pc.getPlayer().getPositionVector();
+        double velocity = 0;
+        double maxHeightDistance;
+        int ticks = 0;
+        pc.jump();
+
+        nextTick();
+
+        Vec3 lastPos = pc.getPlayer().getPositionVector();
+        while(true) {
+            Vec3 cPos = pc.getPlayer().getPositionVector();
+            //System.out.println(cPos.yCoord);
+
+            velocity += pc.getCurrentVelocity();
+            if(cPos.yCoord < lastPos.yCoord) {
+                maxHeightDistance = pc.xzdist(cPos, lastPos);
+                break;
             }
+
+            ticks++;
+            lastPos = pc.getPlayer().getPositionVector();
+            nextTick();
         }
-        else if(current.stage == 2) {
-            if(current.origPos.yCoord == player.posY) {
-                current.distance = Math.sqrt(Math.pow(current.origPos.xCoord - player.posX, 2) + Math.pow(current.origPos.zCoord - player.posZ, 2));
-                current.velocity /= current.ticks;
-                current.stage++;
-                return true;
-            }
+
+        while(true) {
+            Vec3 cPos = pc.getPlayer().getPositionVector();
+            //System.out.println(cPos.yCoord);
+            velocity += pc.getCurrentVelocity();
+            if(cPos.yCoord == origPos.yCoord)
+                break;
+
+            ticks++;
+            lastPos = new Vec3(cPos.xCoord, cPos.yCoord, cPos.zCoord);
+            nextTick();
         }
-        current.lastPos = player.getPositionVector();
-        return false;
+
+        double totalDistance = pc.xzdist(pc.getPlayer().getPositionVector(), origPos);
+
+        switch(runType) {
+            case WALKING:
+                GameInfo.WALK_JUMP_SPEED = velocity / ticks;
+                GameInfo.WALK_JUMP_HALFDIST = maxHeightDistance;
+                GameInfo.WALK_JUMP_DIST = totalDistance;
+                break;
+            case SPRINTING:
+                GameInfo.SPRINT_JUMP_SPEED = velocity / ticks;
+                GameInfo.SPRINT_JUMP_HALFDIST = maxHeightDistance;
+                GameInfo.SPRINT_JUMP_DIST = totalDistance;
+                break;
+            case SNEAKING:
+                GameInfo.SNEAK_JUMP_SPEED = velocity / ticks;
+                GameInfo.SNEAK_JUMP_HALFDIST = maxHeightDistance;
+                GameInfo.SNEAK_JUMP_DIST = totalDistance;
+                break;
+        }
+
+        pc.stopMoving();
+
+        for(int i = 0; i < 50; i++)
+            nextTick();
     }
 
     class Message {
@@ -193,6 +269,7 @@ public class PlayerCalibratorAgent extends MCAgent {
         }
         if(message.text.equals("start calibration")) {
             latch.countDown();
+            active = true;
         }
     }
 }

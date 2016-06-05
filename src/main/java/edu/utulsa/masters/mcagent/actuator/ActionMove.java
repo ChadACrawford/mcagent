@@ -1,10 +1,12 @@
 package edu.utulsa.masters.mcagent.actuator;
 
 import edu.utulsa.masters.mcagent.ControllerStatus;
-import edu.utulsa.masters.mcagent.Debugger;
-import edu.utulsa.masters.mcagent.actuator.Path;
+import edu.utulsa.masters.mcagent.GameInfo;
+import edu.utulsa.masters.mcagent.actuator.movement.MoveControl;
+import edu.utulsa.masters.mcagent.actuator.movement.Path;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.Vec3;
 
 import java.util.LinkedList;
 
@@ -31,6 +33,11 @@ public class ActionMove extends PlayerControllerAction {
                 status = ControllerStatus.FAILURE;
                 return;
             }
+            Vec3[] refinedPath = path.getRefinedPath();
+            moveControls = new MoveControl[refinedPath.length];
+            for(int i = 0; i < moveControls.length; i++) {
+                moveControls[i] = new MoveControl(pc, refinedPath[i]);
+            }
             path.debug();
         }
     }
@@ -38,6 +45,8 @@ public class ActionMove extends PlayerControllerAction {
     public LinkedList<BlockPos> getPath() {
         return path.getPath();
     }
+    int currentPosition = 0;
+    MoveControl[] moveControls;
 
     @Override
     public void performAction() {
@@ -45,8 +54,20 @@ public class ActionMove extends PlayerControllerAction {
 
         if(status != ControllerStatus.BUSY) return;
 
-        boolean complete = path.control(pc);
+        if(moveControls[currentPosition].done()) {
+            currentPosition++;
+            while(currentPosition+1 < moveControls.length && moveControls[currentPosition+1].isValid())
+                currentPosition++;
 
-        if(complete) status = ControllerStatus.FINISHED;
+            if(currentPosition >= moveControls.length) {
+                status = ControllerStatus.FINISHED;
+                return;
+            }
+
+            System.out.format("%d ", currentPosition);
+            moveControls[currentPosition].print();
+        }
+
+        moveControls[currentPosition].run();
     }
 }

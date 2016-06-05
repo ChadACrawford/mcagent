@@ -44,6 +44,8 @@ dependencies {
 
   compile 'com.github.davidmoten:rtree:0.7.5'
 
+  compile 'com.google.code.gson:gson:2.2.4'
+
   compile 'org.choco-solver:choco-solver:3.3.3'
 }
 

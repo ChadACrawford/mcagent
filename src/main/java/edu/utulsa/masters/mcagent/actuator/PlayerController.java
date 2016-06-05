@@ -74,6 +74,7 @@ public class PlayerController {
             mc.gameSettings.keyBindUseItem = keyUse;
             mc.gameSettings.keyBindInventory = keyInventory;
             mc.gameSettings.keyBindSneak = keySneak;
+            mc.gameSettings.keyBindSprint = keySprint;
             mc.gameSettings.keyBindDrop = keyDrop;
             mc.gameSettings.keyBindPickBlock = keyPickBlock;
             mc.gameSettings.keyBindScreenshot = keyScreenshot;
@@ -91,15 +92,28 @@ public class PlayerController {
         updateVelocity();
     }
 
+    public static double xzdist(Vec3 a, Vec3 b) {
+        return Math.sqrt(Math.pow(a.xCoord - b.xCoord,2) + Math.pow(a.zCoord - b.zCoord, 2));
+    }
+
     Vec3 lastPosition;
     double currentVelocity = 0;
+    double xzVelocity = 0;
+    public double dx;
+    public double dy;
+    public double dz;
     public void updateVelocity() {
         if(lastPosition == null) {
             lastPosition = player.getPositionVector();
             return;
         }
 
-        currentVelocity = lastPosition.distanceTo(player.getPositionVector());
+        Vec3 pos = player.getPositionVector();
+        currentVelocity = lastPosition.distanceTo(pos);
+        xzVelocity = xzdist(lastPosition, pos);
+        dx = pos.xCoord - lastPosition.xCoord;
+        dy = pos.yCoord - lastPosition.yCoord;
+        dz = pos.zCoord - lastPosition.zCoord;
         lastPosition = player.getPositionVector();
     }
 
@@ -151,7 +165,7 @@ public class PlayerController {
 
     public void forward() {
         //System.out.println("Forward");
-        keyUp.press();
+        keyUp.pressFor(7);
     }
     public void unforward(){
         keyUp.unpress();
@@ -173,7 +187,7 @@ public class PlayerController {
     }
 
     public void jump() {
-        keyJump.pressFor(50);
+        keyJump.pressFor(5);
     }
     public void unjump() {
         keyJump.unpress();
@@ -257,7 +271,7 @@ public class PlayerController {
     }
 
     public static final double ACCEL = 5.0;
-    public static final double MAX_SPEED = 5.0;
+    public static final double MAX_SPEED = 10.0;
     private double lookX, lookY, lookZ;
     private boolean isLooking = false;
     public double dYaw, dPitch;

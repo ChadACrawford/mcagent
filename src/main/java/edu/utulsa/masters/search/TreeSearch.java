@@ -9,7 +9,7 @@ import java.util.PriorityQueue;
  * Created by chad on 4/26/16.
  */
 public class TreeSearch<T extends NodeEvaluatable<T>> {
-    protected int MAX_ITERATIONS = 1000;
+    protected int MAX_ITERATIONS = 10000;
     protected final T start;
     protected final T end;
 

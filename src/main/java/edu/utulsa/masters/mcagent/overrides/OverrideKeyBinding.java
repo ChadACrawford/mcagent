@@ -35,20 +35,28 @@ public class OverrideKeyBinding extends KeyBinding {
         pressed = true;
     }
     public void unpress() {
-        pressed = false;
+        if(!pressDelay)
+            pressed = false;
     }
 
+    boolean pressDelay = false;
     int delay = 0;
     public void pressFor(int ticks) {
+        pressDelay = true;
+        delay = ticks;
         press();
         //this.timePressed = Minecraft.getSystemTime() + ticks;
         //this.timed = true;
     }
 
     public void tick() {
-        if(delay > 0) {
+        if(pressDelay) {
+            press();
             delay--;
-            if(delay == 0) unpress();
+            if(delay <= 0) {
+                pressDelay = false;
+                unpress();
+            }
         }
     }
 }

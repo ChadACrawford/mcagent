@@ -42,6 +42,7 @@ public class MCAgentMod {
     {
         PlayerController.setKeyBindings();
         PlayerInventory.loadRecipes();
+        GameInfo.initialize();
         Minecraft.getMinecraft().mouseHelper = new OverrideMouseHelper();
         AgentPlanner.initialize();
 
@@ -64,7 +65,7 @@ public class MCAgentMod {
     }
 
     public MCAgent genAgent(EntityPlayerSP player) {
-        return new PlayerCalibratorAgent(player);
+        return new TestMovementAgent(player);
     }
 
     @SubscribeEvent
