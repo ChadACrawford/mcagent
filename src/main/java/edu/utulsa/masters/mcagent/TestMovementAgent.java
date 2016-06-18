@@ -2,10 +2,12 @@ package edu.utulsa.masters.mcagent;
 
 import edu.utulsa.masters.mcagent.actuator.ActionMove;
 import edu.utulsa.masters.mcagent.actuator.PlayerController;
+import edu.utulsa.masters.mcagent.actuator.movement.MoveControl;
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -50,39 +52,30 @@ public class TestMovementAgent extends MCAgent {
             overrideWindow = true;
             PlayerController.doOverrideKeys = true;
 
-            debug.info(end == null ? "what" : "it works!");
-            ActionMove a = new ActionMove(pc, end.getX(), end.getY(), end.getZ());
-//            Path path = Path.compute(world, start, end);
-//            ActionMine a = new ActionMine(pc, start);
-//            Path path = Path.compute(world, start, end, true);
+//            MoveControl mc = new MoveControl(pc, new Vec3(end.getX()+0.5, end.getY()+1, end.getZ()+0.5));
+//
+//            System.out.println(mc.dist());
+//            do {
+//                System.out.println(mc.dist());
+//                mc.moveTo(end.getX()+0.5, end.getY(), end.getZ()+0.5);
+//            } while(continueAction && mc.dist() > 1.0);
 
-            if(a.getStatus() == ControllerStatus.FAILURE) {
-                debug.info("Crap.");
+            ActionMove a = new ActionMove(pc, end.getX(), end.getY(), end.getZ());
+
+            setAction(a);
+
+            waitOnActionComplete();
+
+            if(currentAction.getStatus() == ControllerStatus.FAILURE) {
+                debug.info("Action failed!");
             }
             else {
-                for (BlockPos p : a.getPath()) {
-                    debug.debugBlock(p, Block.getStateById(41));
-                }
-
-                debug.info("Finished computing path. Now to follow it.");
-
-                while (continueAction) {
-                    ControllerStatus status = a.getStatus();
-                    if (status == ControllerStatus.FINISHED) {
-                        debug.info("Finished!");
-                        break;
-                    } else if (status == ControllerStatus.FAILURE) {
-                        debug.info("Failed!");
-                        break;
-                    } else {
-                        a.act();
-                    }
-                }
+                debug.info("Action completed!");
             }
-            continueAction = true;
 
             latch = new CountDownLatch(1);
             debug.info("Action complete.");
+            continueAction = true;
         }
     }
 
@@ -134,7 +127,7 @@ public class TestMovementAgent extends MCAgent {
             return;
         }
         if(message.text.equals("stop")) {
-            continueAction = false;
+            stopAction();
         }
         if(message.text.equals("start") && end != null) {
             latch.countDown();

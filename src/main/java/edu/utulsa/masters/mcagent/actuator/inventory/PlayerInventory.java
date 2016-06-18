@@ -4,6 +4,7 @@ import edu.utulsa.masters.mcagent.actuator.PlayerController;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -15,6 +16,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -150,6 +153,8 @@ public class PlayerInventory {
         return slots;
     }
 
+
+
     /**
      * Moves items from a source slot into the target slot. If the target slot has fewer items than the specified
      * amount, it moves as many items as possible.
@@ -214,6 +219,8 @@ public class PlayerInventory {
     }
 
     public boolean swapSlots(Slot slot1, Slot slot2) {
+        GuiScreen gui = Minecraft.getMinecraft().currentScreen;
+
         ItemStack stack1 = slot1.getHasStack() ? slot1.getStack() : null;
         ItemStack stack2 = slot2.getHasStack() ? slot2.getStack() : null;
         if(stack1 == null && stack2 == null) {
@@ -246,5 +253,30 @@ public class PlayerInventory {
                 ((GuiContainer)currentScreen).inventorySlots instanceof ContainerWorkbench;
     }
 
+    Method handleMouseClick;
+
+    /**
+     *
+     * @param slotIn
+     * @param clickedButton
+     * @param clickType The mode, which is important i guess. Modes are:
+     *                  0 - Basic click
+     *                  1 - Shift click
+     *                  2 - Hotbar
+     *                  3 - Pick block
+     *                  4 - Drop
+     *                  5 - ?
+     *                  6 - Double click
+     */
+    public void mouseClick(Slot slotIn, int clickedButton, int clickType) {
+        try {
+            GuiContainer gui = (GuiContainer)Minecraft.getMinecraft().currentScreen;
+            handleMouseClick.invoke(gui, slotIn, 0, clickedButton, clickType);
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

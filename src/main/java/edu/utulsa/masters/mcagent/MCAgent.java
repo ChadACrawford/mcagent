@@ -1,6 +1,7 @@
 package edu.utulsa.masters.mcagent;
 
 import edu.utulsa.masters.mcagent.actuator.PlayerController;
+import edu.utulsa.masters.mcagent.actuator.PlayerControllerAction;
 import edu.utulsa.masters.mcagent.overrides.OverrideMouseHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -11,6 +12,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * This agent controllers a single MC player.
@@ -111,6 +113,37 @@ public abstract class MCAgent extends Thread {
 //        }
 //    }
 
+    protected CountDownLatch actionLatch = new CountDownLatch(1);
+    protected PlayerControllerAction currentAction = null;
+    protected boolean actionRunning = false;
+    protected void waitOnActionComplete() {
+        try {
+            actionLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    protected void setAction(PlayerControllerAction action) {
+        currentAction = action;
+        actionRunning = true;
+    }
+    protected void stopAction() {
+        actionRunning = false;
+        actionLatch.countDown();
+        actionLatch = new CountDownLatch(1);
+    }
+    private void runCurrentAction() {
+        if(!actionRunning) return;
+        if(currentAction == null || currentAction.isFinished()) {
+            actionRunning = false;
+            actionLatch.countDown();
+            actionLatch = new CountDownLatch(1);
+        }
+        else {
+            currentAction.act();
+        }
+    }
+
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if(overrideWindow) {
@@ -124,6 +157,7 @@ public abstract class MCAgent extends Thread {
         }
         if(event.phase == TickEvent.Phase.START) {
             pc.prePlayerTick();
+            runCurrentAction();
         }
     }
 

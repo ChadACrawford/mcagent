@@ -29,6 +29,10 @@ public abstract class PlayerControllerAction implements Controller {
 
     protected abstract void performAction();
 
+    public boolean isFinished() {
+        return status == ControllerStatus.FINISHED || status == ControllerStatus.FAILURE;
+    }
+
     public ControllerStatus getStatus() {
         return status;
     }

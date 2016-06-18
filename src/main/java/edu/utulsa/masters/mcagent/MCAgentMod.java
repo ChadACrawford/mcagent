@@ -11,6 +11,8 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -69,11 +71,9 @@ public class MCAgentMod {
     }
 
     @SubscribeEvent
-    public void onPlayerUpdate(TickEvent.PlayerTickEvent e) {
-        if(e.phase == TickEvent.Phase.START) {
-            EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-
-            //System.out.println(player);
+    public void onEntityConstructing(EntityEvent.EntityConstructing event) {
+        if(event.entity instanceof EntityPlayerSP) {
+            EntityPlayerSP player = (EntityPlayerSP)event.entity;
 
             if (activeAgent == null || !activeAgent.isCurrentPlayer()) {
                 if(activeAgent != null) activeAgent.kill();
@@ -85,6 +85,13 @@ public class MCAgentMod {
             if (!activeAgent.isAlive()) {
                 activeAgent = null;
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerUpdate(TickEvent.PlayerTickEvent e) {
+        if(e.phase == TickEvent.Phase.START) {
+
         }
     }
 

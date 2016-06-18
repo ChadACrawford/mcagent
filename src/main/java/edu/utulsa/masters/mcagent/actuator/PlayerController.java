@@ -83,8 +83,11 @@ public class PlayerController {
         }
     }
 
+    public int ticksExisted;
     public long lastUpdatedPlayerTick;
     public void prePlayerTick() {
+        if(player.ticksExisted == ticksExisted) return;
+        ticksExisted = player.ticksExisted;
         lastUpdatedPlayerTick = Minecraft.getSystemTime();
         for(OverrideKeyBinding key: keys) {
             key.tick();

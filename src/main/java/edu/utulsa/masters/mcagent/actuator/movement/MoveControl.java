@@ -97,21 +97,28 @@ public class MoveControl {
         pc.look(lookX, lookY, lookZ);
         goStraight();
         boolean jumped = checkJump();
-        if(jumped && !needsFall) {
+        if(!jumped && pc.getPlayer().onGround && !needsFall) {
             checkFall();
         }
     }
 
+    private int ticksFix = 0;
     private final double HALF_DIST = 0.70710678;
     protected void goStraight() {
         DirectionInfo info = getDirection(x, y, z);
 
-        pc.unpressAll();
-        if(info.projF > HALF_DIST) {
+        pc.stopMoving();
+        if(info.projF >= HALF_DIST) {
             pc.forward();
             if(Math.abs(info.projB) > info.projF) {
                 checkStrafe(info);
             }
+        }
+
+        if(pc.getCurrentVelocity() == 0) ticksFix = 5;
+        if(ticksFix > 0) {
+            checkStrafe(info);
+            ticksFix--;
         }
 //        if(info.projF > 0.9) {
 //            pc.forward();
@@ -138,7 +145,7 @@ public class MoveControl {
     }
 
     protected double getJumpDist() {
-        return 0.7;
+        return 0.31;
     }
 
     protected double forwardDir() {
@@ -167,11 +174,21 @@ public class MoveControl {
     protected Vector2d getCurrentMoveVec(double m) {
         double dx = pc.dx,
                 dz = pc.dz;
-        if(dx == 0 && dz == 0) {
+        if(pc.getCurrentVelocity() <= 1e-4) {
             Vector2d mv = kbVec();
             dx = mv.x;
             dz = mv.y;
         }
+        double d = Math.sqrt(dx*dx + dz*dz);
+        dx = (dx / d) * m;
+        dz = (dz / d) * m;
+        return new Vector2d(dx, dz);
+    }
+
+    protected Vector2d getLookVec(double m) {
+        Vec3 lookVec = pc.getPlayer().getLookVec();
+        double dx = lookVec.xCoord,
+                dz = lookVec.zCoord;
         double d = Math.sqrt(dx*dx + dz*dz);
         dx = (dx / d) * m;
         dz = (dz / d) * m;
@@ -183,12 +200,14 @@ public class MoveControl {
 
         Vec3 pos = pc.getPlayer().getPositionVector();
 
-        Vector2d mvVec = getCurrentMoveVec(getJumpDist());
+        Vector2d mvVec = getLookVec(getJumpDist());
         double dx = mvVec.x,
                 dz = mvVec.y;
 
         BlockPos b = new BlockPos(pos.addVector(dx, 0, dz));
         if(WorldTools.isSolid(pc.getWorld(), b) && b.equals(new BlockPos(x,y-1,z))) {
+            DirectionInfo info = getDirection(b.getX() + 0.5, b.getY(), b.getZ());
+            checkStrafe(info);
             pc.jump();
             return true;
         }
@@ -199,21 +218,23 @@ public class MoveControl {
         Vec3 pos = pc.getPlayer().getPositionVector();
         BlockPos b = pc.getPlayer().getPosition();
 
-        Vector2d mvVec = getCurrentMoveVec(0.5);
+        Vector2d mvVec = getCurrentMoveVec(0.2);
         double dx = mvVec.x,
                 dz = mvVec.y;
 
-        BlockPos b2 = new BlockPos(pos.xCoord + dx, pos.yCoord, pos.zCoord + dz);
+        System.out.format("dx %6.3f dz %6.3f\n", dx, dz);
+        BlockPos b2 = new BlockPos(pos.xCoord + dx, pos.yCoord - 1, pos.zCoord + dz);
         if(!WorldTools.isSolid(pc.getWorld(), b2)) {
-            //System.out.println("AVOID FALLING IDIOT");
+            System.out.println("AVOID FALLING IDIOT");
             //System.out.format("%6.3f %6.3f %6.3f\n", pos.xCoord, pos.yCoord, pos.zCoord);
-            moveTo(b.getX() + 0.5, b.getY(), b.getZ() + 0.5);
+            //moveTo(b.getX() + 0.5, b.getY(), b.getZ() + 0.5);
+            pc.back();
             return true;
         }
         return false;
     }
 
-    private void moveTo(double x, double y, double z) {
+    public void moveTo(double x, double y, double z) {
         DirectionInfo info = getDirection(x, y, z);
 
         pc.stopMoving();
